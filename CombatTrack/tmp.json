@@ -1,0 +1,15 @@
+[
+   {
+      "Status": {
+         "Angry @ Nate": -1, 
+         "Stunned": 3, 
+         "Sleeping": 4
+      }, 
+      "Name": "BLANK", 
+      "Turns": 0, 
+      "TimeTaken": 0.0, 
+      "Initiative": 0.0, 
+      "Active": false, 
+      "TurnStart": null
+   }
+]
