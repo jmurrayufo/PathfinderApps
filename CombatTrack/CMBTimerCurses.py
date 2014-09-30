@@ -9,6 +9,8 @@ from common import Player
 from curses.wrapper import wrapper
 import curses
 
+# TODO: This program does a poor job of screen overrun protection. Find and fix
+# 
 
 class PlayerEncoder( JSONEncoder ) :
    def default(self, o):
@@ -228,13 +230,13 @@ def ListPlayers( ):
 
 def BlastPlayers( ):
    global GLOB_PLAYERS
-   stdscr.clear()
-
-   stdscr.addstr( "Blast set of players into initiative.\n" )
-   stdscr.addstr( "Blank line to finish!\n" )
 
    while( 1 ):
+      stdscr.clear()
+      stdscr.addstr( "Blast set of players into initiative.\n" )
+      stdscr.addstr( "Blank line to finish!\n" )
       stdscr.addstr( "Next name to add...\n" )
+
       tmp = GetInput( "> ", str )
       if ( len( tmp ) ):
          mule = Player()
@@ -251,7 +253,7 @@ def BlastInitiative( ):
    stdscr.addstr( "Enter each players initiative. " )
    stdscr.addstr( "If blank, old number will be kept.\n" )
    for idx,val in enumerate( GLOB_PLAYERS ):
-      stdscr.addstr( "Init for: {Name} [{Init:.0f}]\n".format( **val.GetStrDict() ) )
+      stdscr.addstr( "Init for: {Name} [{Init:.0f}] ".format( **val.GetStrDict() ) )
       tmp = GetInput( "> ", str )
       if ( len( tmp ) ):
          try:
@@ -312,8 +314,12 @@ def EditPlayer( ):
       stdscr.addstr( "Select Player to Edit\n" )
       stdscr.addstr( "Blank Line to Return\n" )
       ListPlayers()
+      stdscr.addstr( ">> " )
+      stdscr.refresh()
+      sel = stdscr.getkey()
 
-      sel = GetInput( "> ", str )
+      if sel == '\n' :
+         return
 
       try:
          sel = int( sel )
@@ -325,22 +331,24 @@ def EditPlayer( ):
          sel -= 1
 
          stdscr.addstr( "You can press enter to skip new changes\n" )
-         stdscr.addstr( "Selected to edit:\n",GLOB_PLAYERS[ sel ].GetStr() )
+         stdscr.addstr( "Selected to edit: {}\n".format( 
+            GLOB_PLAYERS[ sel ].GetStr() 
+            ) 
+         )
          
-         stdscr.addstr( "New Name:\n" )
-         tmp = GetInput( "> ", str )
+         stdscr.addstr( "New Name: " )
+         tmp = GetInput( "", str )
          if ( len( tmp ) ):
             GLOB_PLAYERS[ sel ].Name = tmp
 
-         stdscr.addstr( "New Initiative:\n" )
-         tmp = GetInput( "> ", str )
+         stdscr.addstr( "New Initiative: " )
+         tmp = GetInput( "", str )
          if ( len( tmp ) ):
             try:
                GLOB_PLAYERS[ sel ].Initiative = float( tmp )
             except ValueError:
                pass
-
-         pass
+         SaveGame()
       else:
          continue
 
