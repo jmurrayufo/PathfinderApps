@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+from common import Player
 from datetime import datetime,timedelta
-import os
-import time
-import json
 from json import JSONEncoder
 import atexit
-from common import Player
+import json
+import os
+import sys
+import time
 
 
 class PlayerEncoder( JSONEncoder ) :
@@ -353,8 +354,8 @@ def RunEncounter( ):
       ClearScreen()
       PrintHelp()
       GLOB_PLAYERS.sort( key = lambda x: x.Initiative, reverse = True )
-      sel = GetInput( "\n> ", str )
-
+      # sel = GetInput( "\n> ", str )
+      sel = sys.stdin.read(1)
       
       if ( sel in ["?","help","h","HELP","Help"]):
          PrintHelp()
