@@ -6,6 +6,8 @@ import json
 from json import JSONEncoder
 import atexit
 from common import Player
+from curses.wrapper import wrapper
+import curses
 
 
 class PlayerEncoder( JSONEncoder ) :
@@ -79,23 +81,31 @@ def GetInput( prompt = "> ", inputType = None, forceReturn = True ):
                return None
 
 def RunMenu( menuTuple, menuTitle, loop = True ):
+   global stdscr
+
+   # stdscr.addstr("Hello!\n")
+   # stdscr.addstr("Hello!\n")
+   # stdscr.addstr("Hello!\n")
+   # stdscr.refresh()
+
+   # curses.napms( 1000 )
+
+   # return
+
    while( 1 ):
-      ClearScreen()
-      print "<<< %s >>>"%( menuTitle )
+      # ClearScreen()
+      stdscr.addstr( "<<< %s >>>\n"%( menuTitle ) )
       for idx,val in enumerate( menuTuple ):
-         print "[%d] %s"%( idx+1, val[0] )
-      print 
+         stdscr.addstr( "[%d] %s\n"%( idx+1, val[0] ) )
+      stdscr.addstr("> ")
+      stdscr.refresh()
 
-      sel = GetInput( "> ", str )
 
-      if( len( sel ) ):
-         try:
-            sel = int( sel ) - 1
-            if sel < 0 :
-               continue
-         except ValueError:
-            continue
-      else:
+      sel = stdscr.getkey()
+
+      try:
+         sel = int( sel ) - 1
+      except ValueError:
          continue
 
       if ( sel >= len( menuTuple ) or sel < 0 ):
@@ -109,16 +119,19 @@ def RunMenu( menuTuple, menuTitle, loop = True ):
       if ( not loop ):
          return True
 
-def Main( ):
+def Main( window ):
    global GLOB_PLAYERS
+   global stdscr
+   stdscr = window
 
    GLOB_PLAYERS = []
    atexit.register( Cleanup )
+
+
    
    if( os.path.exists('.playerdata.json') ):
       EmergencyReload()
    else:
-      # BlastPlayers()
       DefaultGroup()
 
    menu = (
@@ -521,9 +534,9 @@ def Exit( ):
 
 def Cleanup( ):
    try:
-      #os.remove('.playerdata.json')
       pass
    except OSError:
       pass
 
-Main( )
+# Call the application within the curses wrapper!
+wrapper( Main )
