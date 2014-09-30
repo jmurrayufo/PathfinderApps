@@ -26,8 +26,9 @@ class PlayerEncoder( JSONEncoder ) :
       elif type( o ) == timedelta :
          return o.total_seconds()
       else:
-         print "Cannot encode!"
-         print type(o)
+         assert(0),"Cannot encode something! Debug Time!"
+         # print "Cannot encode!"
+         # print type(o)
          return o
 
       return d 
@@ -48,15 +49,19 @@ def EmergencyReload( ):
          GLOB_PLAYERS[-1].Status = i['Status']
 
 def ClearScreen( ):
-   if ( os.name == 'nt' ):
-      os.system('cls')
+   """
+   Unused in curses!
+   """
+   pass
+   # if ( os.name == 'nt' ):
+   #    os.system('cls')
       
-   elif (os.name == 'posix' ):
-      os.system('clear')
+   # elif (os.name == 'posix' ):
+   #    os.system('clear')
 
-   else:
-      print os.name
-      assert( False ), "This OS must be updated!"
+   # else:
+   #    print os.name
+   #    assert( False ), "This OS must be updated!"
 
 def GetInput( prompt = "> ", inputType = None, forceReturn = True ):
    """
@@ -68,32 +73,32 @@ def GetInput( prompt = "> ", inputType = None, forceReturn = True ):
    forceReturn will for the prompt to wait for valid input if a type is given 
    (default True)
    """
-   if ( inputType == None ):
-      return raw_input( prompt )
-   else:
-      while(1):
-         try:
-            return inputType( raw_input( prompt ) )
-         except ValueError:
-            if forceReturn :
-               continue
-            else:
-               return None
+      
+   curses.echo()
+   while(1):
+      stdscr.addstr( prompt )
+      stdscr.refresh()
+      tmp = stdscr.getstr()
+      if inputType == None :
+         curses.noecho()
+         return tmp
+      try:
+         tmp = inputType( tmp )
+         curses.noecho()
+         return tmp
+      except ValueError:
+         if forceReturn :
+            continue
+         else:
+            curses.noecho()
+            return None
 
 def RunMenu( menuTuple, menuTitle, loop = True ):
-   global stdscr
-
-   # stdscr.addstr("Hello!\n")
-   # stdscr.addstr("Hello!\n")
-   # stdscr.addstr("Hello!\n")
-   # stdscr.refresh()
-
-   # curses.napms( 1000 )
-
-   # return
+   # global stdscr
 
    while( 1 ):
       # ClearScreen()
+      stdscr.clear()
       stdscr.addstr( "<<< %s >>>\n"%( menuTitle ) )
       for idx,val in enumerate( menuTuple ):
          stdscr.addstr( "[%d] %s\n"%( idx+1, val[0] ) )
@@ -111,12 +116,14 @@ def RunMenu( menuTuple, menuTitle, loop = True ):
       if ( sel >= len( menuTuple ) or sel < 0 ):
          continue
 
+      # If the menu location doesn't have a function call, we return. 
+      # This allows for a handy sort of 'go back' menu funcion!
       if ( menuTuple[sel][1] == None ):
          return False
 
       menuTuple[sel][1]()
       
-      if ( not loop ):
+      if not loop :
          return True
 
 def Main( window ):
@@ -146,20 +153,27 @@ def DefaultGroup( ):
    global GLOB_PLAYERS
 
 
-   ClearScreen()
-   print "\nInitiate Default Group!"
+   # ClearScreen()
+   stdscr.clear()
+   stdscr.addstr( "Initiate Default Group!\n" )
    
    for i in GLOB_PLAYERS:
       if i.Active :
-         print "WARNING! Active Player Detected! Overwrite?"
-         tmp = GetInput( "> ", str )
-         if ( tmp not in ["y","Y" ] ):
-            return
-         else:
+         stdscr.addstr( "WARNING! Active Player Detected! Overwrite? (y/n)\n" )
+         
+         # Check to see if the user really wants to overwrite.
+         stdscr.addstr( "> " )
+         if stdscr.getkey() == 'y' :
             break
+         else:
+            # Anything other then a y will result in aborting the overwrite
+            return
+
+   # Clear global list if it exists
    GLOB_PLAYERS = []
 
-   # We don't need to ask anymore, we are crash safe!
+   # Initiate default players list
+   # TODO: This would be better as a pull from local user settings.
    mule = Player()   
    mule.Name = "Nate H"
    mule.Initiative = 0
@@ -185,13 +199,16 @@ def DefaultGroup( ):
    mule.Initiative = 0
    GLOB_PLAYERS.append( mule )
 
-
-
+   # Write changes to disk
    SaveGame()
 
-   return 0
+   return
 
 def ListPlayers( ):
+   """
+   Insert current list of players into the buffer
+   WARNING: Will not clear or refresh!
+   """
    global GLOB_PLAYERS
 
    GLOB_PLAYERS.sort( key = lambda x: x.Initiative, reverse = True )
@@ -202,33 +219,22 @@ def ListPlayers( ):
 
    if ( totalTime.total_seconds() < 1 ):
       totalTime = timedelta( seconds = 1 )
-   print "\nIndex Name"
+
+   # stdscr.clear()
+   stdscr.addstr( "Index Name\n" )
    for idx,val in enumerate( GLOB_PLAYERS ):
-      # print " [%2d]"%(idx+1),val.GetStr( totalTime )
-      print " [{:2}] {}".format( idx+1, val.Name )
-
-def EditPlayers( ):
-   menu = (
-           ( "Add Player", AddPlayer ),
-           ( "Blast Players", BlastPlayers ),
-           ( "Blast Initiative", BlastInitiative ),
-           ( "Delete Player", DelPlayer ),
-           ( "Edit Player", EditPlayer ),
-           ( "Return", None ),
-           )
-   while( 1 ):
-      ClearScreen()
-      ListPlayers()
-
-      if ( not RunMenu( menu, "Edit Players", False ) ):
-         break
+      stdscr.addstr( " [{:2}] {}\n".format( idx+1, val.Name ) )
+   # stdscr.refresh()
 
 def BlastPlayers( ):
    global GLOB_PLAYERS
-   ClearScreen()
-   print "\nBlast set of players into initiative. \nBlank line to finish!"
+   stdscr.clear()
+
+   stdscr.addstr( "Blast set of players into initiative.\n" )
+   stdscr.addstr( "Blank line to finish!\n" )
+
    while( 1 ):
-      print "Next name to add..."
+      stdscr.addstr( "Next name to add...\n" )
       tmp = GetInput( "> ", str )
       if ( len( tmp ) ):
          mule = Player()
@@ -240,11 +246,12 @@ def BlastPlayers( ):
    return
 
 def BlastInitiative( ):
-   ClearScreen()
-   print "\nBlast group Initiatives!"
-   print "Enter each players initiative. If blank, old number will be kept."
+   stdscr.clear()
+   stdscr.addstr( "Blast group Initiatives!\n" )
+   stdscr.addstr( "Enter each players initiative. " )
+   stdscr.addstr( "If blank, old number will be kept.\n" )
    for idx,val in enumerate( GLOB_PLAYERS ):
-      print "Init for:",val.GetStr()
+      stdscr.addstr( "Init for: {Name} [{Init:.0f}]\n".format( **val.GetStrDict() ) )
       tmp = GetInput( "> ", str )
       if ( len( tmp ) ):
          try:
@@ -256,30 +263,33 @@ def BlastInitiative( ):
 def AddPlayer( ):
    global GLOB_PLAYERS
 
-   ClearScreen()
-   print "\nAdding player to game!"
+   stdscr.clear()
+   stdscr.addstr( "Adding player to game!\n" )
    mule = Player()
 
-   print "Player Name:"
-   mule.Name = GetInput( "> ", str )
+   stdscr.addstr( "Player Name: " )
+   curses.echo()
+   mule.Name = stdscr.getstr()
+   curses.noecho()
    
    # Error check for empty names!
    if( not len( mule.Name ) ):
       return
  
-   print "Initiative:"
-   mule.Initiative = GetInput( "> ", float )
+   stdscr.addstr( "Initiative: " )
+   mule.Initiative = GetInput( "", float )
 
    GLOB_PLAYERS.append( mule )
 
    return 
 
 def DelPlayer( ):
-   ClearScreen()
-   print "\nSelect Player to Delete."
-   print "Blank line to return"
 
    while( 1 ):
+      stdscr.clear()
+      stdscr.addstr( "Select Player to Delete.\n" )
+      stdscr.addstr( "Blank line to return.\n" )
+
       ListPlayers()
 
       tmp = GetInput( "> ", str )
@@ -289,17 +299,20 @@ def DelPlayer( ):
          return
       if ( tmp > 0 and tmp <= len( GLOB_PLAYERS ) ):
          del GLOB_PLAYERS[ tmp - 1 ]
+         SaveGame( )
       else:
-         print "Invalid Delete!\n"
+         continue
 
 
 def EditPlayer( ):
    global GLOB_PLAYERS
 
+   # TODO: EditPlayer isn't used often, but still needs an update!
+
    while( 1 ):
-      ClearScreen()
-      print "\nSelect Player to Edit"
-      print "Blank Line to Return"
+      stdscr.clear()
+      stdscr.stdscr( "Select Player to Edit\n" )
+      stdscr.stdscr( "Blank Line to Return\n" )
       ListPlayers()
 
       sel = GetInput( "> ", str )
@@ -313,15 +326,15 @@ def EditPlayer( ):
          # Correct selection for rest of menu
          sel -= 1
 
-         print "You can press enter to skip new changes"
-         print "\nSelected to edit:",GLOB_PLAYERS[ sel ].GetStr()
+         stdscr.addstr( "You can press enter to skip new changes\n" )
+         stdscr.addstr( "Selected to edit:\n",GLOB_PLAYERS[ sel ].GetStr() )
          
-         print "New Name:"
+         stdscr.addstr( "New Name:\n" )
          tmp = GetInput( "> ", str )
          if ( len( tmp ) ):
             GLOB_PLAYERS[ sel ].Name = tmp
 
-         print "New Initiative:"
+         stdscr.addstr( "New Initiative:\n" )
          tmp = GetInput( "> ", str )
          if ( len( tmp ) ):
             try:
@@ -343,32 +356,37 @@ def SaveGame( ):
 
 def RunEncounter( ):
    def PrintHelp( ):
-      print "\n<< Options >>"
-      print "#: Select Active Player"
-      print "0: No Active Player, pause game"
-      print "n: Next Player"
-      print "s: Status Edit Menu"
-      print 
-      print "a: Add Player"
-      print "b: Blast In Players"
-      print "d: Delete Player"
-      print "e: Edit Player"
-      print "i: Blast In Initiatives"
-      print 
-      print "r: Reset Encounter"
-      print "x: Return to Main Menu"
+      stdscr.addstr( "<< Options >>\n" )
+      stdscr.addstr( "#: Select Active Player\n" )
+      stdscr.addstr( "0: No Active Player, pause game\n" )
+      stdscr.addstr( "n: Next Player\n" )
+      stdscr.addstr( "s: Status Edit Menu\n" )
+      stdscr.addstr( "\n" )
+      stdscr.addstr( "a: Add Player\n" )
+      stdscr.addstr( "b: Blast In Players\n" )
+      stdscr.addstr( "d: Delete Player\n" )
+      stdscr.addstr( "e: Edit Player\n" )
+      stdscr.addstr( "i: Blast In Initiatives\n" )
+      stdscr.addstr( "\n" )
+      stdscr.addstr( "r: Reset Encounter\n" )
+      stdscr.addstr( "x: Return to Main Menu\n" )
 
 
    global GLOB_PLAYERS
 
    while( 1 ):
+      # Write to disk!
       SaveGame( )
-      ClearScreen()
-      PrintHelp()
-      GLOB_PLAYERS.sort( key = lambda x: x.Initiative, reverse = True )
-      sel = GetInput( "\n> ", str )
 
-      
+      stdscr.clear()
+      # ClearScreen( )
+      PrintHelp( )
+      GLOB_PLAYERS.sort( key = lambda x: x.Initiative, reverse = True )
+      stdscr.addstr( "> " )
+      stdscr.refresh()
+      # curses.echo()
+      sel = stdscr.getkey()
+
       if ( sel in ["?","help","h","HELP","Help"]):
          PrintHelp()
          raw_input("Press Enter to continue...")
@@ -444,50 +462,54 @@ def RunEncounter( ):
 
 
 def StatusMenu( ):
-   ClearScreen()
-   print "\nSelect Player to exit the status of."
-   print "Blank line to return"
 
    while( 1 ):
+      stdscr.clear()
+      stdscr.addstr( "Select Player to exit the status of.\n" )
+      stdscr.addstr( "Blank line to return\n" )
       ListPlayers()
 
       tmp = GetInput( "> ", int, False )
-      if tmp == None or type(tmp) != int :
+      if tmp == None :
          return
       
-      if ( tmp > 0 and tmp <= len( GLOB_PLAYERS ) ):
+      if tmp > 0 and tmp <= len( GLOB_PLAYERS ) :
          StatusSubMenu( tmp - 1 )
          continue
       else:
-         print "Invalid player slection!"
+         stdscr.addstr( "Invalid player slection!" )
+         stdscr.refresh()
+         curses.napms(1000)
    pass
 
 def StatusSubMenu( sel ):
    while True :
-      ClearScreen()
-      print "\nEditing the status of {}".format( GLOB_PLAYERS[sel].Name )
+      stdscr.clear()
+      stdscr.addstr( "Editing the status of {}\n".format( GLOB_PLAYERS[sel].Name ) )
       
-      print "Current Status:"
+      stdscr.addstr( "Current Status:\n" )
       for i in GLOB_PLAYERS[sel].Status : 
-         print "{} [{}]".format( i, GLOB_PLAYERS[sel].Status[i] )
+         stdscr.addstr( "{} [{}]\n".format( i, GLOB_PLAYERS[sel].Status[i] ) )
       
-      print "\nSelection option"
-      print "a: Add Status to player"
-      print "r: Remove status from player"
-      print "d: Remove status from player"
-      print "x: Done"
+      stdscr.addstr( "\nSelection option\n" )
+      stdscr.addstr( "a: Add Status to player\n" )
+      stdscr.addstr( "r: Remove status from player\n" )
+      stdscr.addstr( "d: Remove status from player\n" )
+      stdscr.addstr( "x: Done\n" )
 
-      localSel = GetInput( "> ", str )
-      if not len(localSel) or localSel == 'x' :
+      stdscr.addstr( ">> " )
+      stdscr.refresh()
+      localSel = stdscr.getkey()
+      if localSel == '\n' or localSel == 'x' :
          break
       if localSel == 'a' :
 
-         print "\nName of Status:"
+         stdscr.addstr( "Name of Status:\n" )
          key = GetInput( "> ", str, False )
          if not len( key ) :
             continue
          
-         print "Duration of Status (In turns):"
+         stdscr.addstr( "Duration of Status (In turns):\n" )
          turns = GetInput( "> ", int, False )
          if not turns :
             continue
@@ -495,17 +517,23 @@ def StatusSubMenu( sel ):
          GLOB_PLAYERS[sel].AddStatus( key, turns )
          SaveGame()
          continue
+      
       if localSel in ['r','d'] :
          
          # Dont bother to try to delete if we dont have any status to delete
          if not len( GLOB_PLAYERS[sel].Status ) :
             continue
          
-         print "Current status..."
+         stdscr.addstr( "Current status...\n" )
          
          for idx,val in enumerate( GLOB_PLAYERS[sel].Status ) :
-            print " [{}] {}:{}".format( idx + 1, val, GLOB_PLAYERS[sel].Status[val] )
-         print "Select Status to delete:"
+            stdscr.addstr( " [{}] {}:{}\n".format( 
+               idx + 1, 
+               val, 
+               GLOB_PLAYERS[sel].Status[val] 
+               ) 
+            )
+         stdscr.addstr( "Select Status to delete:\n" )
 
          localSel = GetInput( "> ", int, False )
          # Check for None input, or invlaid range and contiue if so
@@ -515,21 +543,7 @@ def StatusSubMenu( sel ):
          del GLOB_PLAYERS[sel].Status[ GLOB_PLAYERS[sel].Status.keys()[localSel-1] ] 
          SaveGame()
 
-
-
-         
-
-
 def Exit( ):
-   #print "Quit?"
-
-   #tmp = GetInput( "> ", str )
-   #if ( tmp in ["y","Y" ] ):
-   #   quit()
-   #else:
-   #   return
-
-   # We don't need to ask anymore, we are crash safe!
    quit()
 
 def Cleanup( ):
