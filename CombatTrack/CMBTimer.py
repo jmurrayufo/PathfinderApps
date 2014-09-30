@@ -118,7 +118,8 @@ def Main( ):
    if( os.path.exists('.playerdata.json') ):
       EmergencyReload()
    else:
-      BlastPlayers()
+      # BlastPlayers()
+      DefaultGroup()
 
    menu = (
            ( "Run Encounter", RunEncounter ),
