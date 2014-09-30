@@ -555,6 +555,10 @@ def Exit( ):
    quit()
 
 def Cleanup( ):
+   # Old versions of linux don't handle the wrapper function correctly, handle them here instead. 
+   curses.nocbreak()
+   curses.echo()
+   curses.endwin()
    try:
       pass
    except OSError:
@@ -562,3 +566,5 @@ def Cleanup( ):
 
 # Call the application within the curses wrapper!
 wrapper( Main )
+
+
