@@ -113,7 +113,7 @@ def Main( window ):
 
       # One last incriment for the total Time!
       screenRow += 1
-      window.addstr( y, 0, "Total Time: {}".format( DeltaTruncate( totalTime ) ) )
+      window.addstr( screenRow, 0, "Total Time: {}".format( DeltaTruncate( totalTime ) ) )
       
       # We have finished the update! Refresh all touched characters
       window.refresh( )
