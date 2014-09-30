@@ -307,12 +307,10 @@ def DelPlayer( ):
 def EditPlayer( ):
    global GLOB_PLAYERS
 
-   # TODO: EditPlayer isn't used often, but still needs an update!
-
    while( 1 ):
       stdscr.clear()
-      stdscr.stdscr( "Select Player to Edit\n" )
-      stdscr.stdscr( "Blank Line to Return\n" )
+      stdscr.addstr( "Select Player to Edit\n" )
+      stdscr.addstr( "Blank Line to Return\n" )
       ListPlayers()
 
       sel = GetInput( "> ", str )
@@ -382,7 +380,7 @@ def RunEncounter( ):
       # ClearScreen( )
       PrintHelp( )
       GLOB_PLAYERS.sort( key = lambda x: x.Initiative, reverse = True )
-      stdscr.addstr( "> " )
+      stdscr.addstr( ">> " )
       stdscr.refresh()
       # curses.echo()
       sel = stdscr.getkey()
@@ -409,7 +407,7 @@ def RunEncounter( ):
          continue
 
       if ( sel in ["r", "R"] ):
-         if ( GetInput( "ARE YOU SURE???> ", str ) in [ "y", "Y" ] ):
+         if ( GetInput( "\nARE YOU SURE???> ", str ) in [ "y", "Y" ] ):
             for i in GLOB_PLAYERS:
                i.Clear()
          continue
@@ -468,10 +466,17 @@ def StatusMenu( ):
       stdscr.addstr( "Select Player to exit the status of.\n" )
       stdscr.addstr( "Blank line to return\n" )
       ListPlayers()
+      stdscr.addstr( ">> " )
+      stdscr.refresh()
+      tmp = stdscr.getkey()
 
-      tmp = GetInput( "> ", int, False )
-      if tmp == None :
+      if tmp == '\n' :
          return
+
+      try:
+         tmp = int( tmp )
+      except ValueError:
+         continue
       
       if tmp > 0 and tmp <= len( GLOB_PLAYERS ) :
          StatusSubMenu( tmp - 1 )
@@ -503,7 +508,8 @@ def StatusSubMenu( sel ):
       if localSel == '\n' or localSel == 'x' :
          break
       if localSel == 'a' :
-
+         stdscr.clear()      
+         stdscr.addstr( "Editing the status of {}\n".format( GLOB_PLAYERS[sel].Name ) )
          stdscr.addstr( "Name of Status:\n" )
          key = GetInput( "> ", str, False )
          if not len( key ) :
@@ -523,7 +529,9 @@ def StatusSubMenu( sel ):
          # Dont bother to try to delete if we dont have any status to delete
          if not len( GLOB_PLAYERS[sel].Status ) :
             continue
-         
+         stdscr.clear()
+         stdscr.addstr( "Editing the status of {}\n".format( GLOB_PLAYERS[sel].Name ) )
+
          stdscr.addstr( "Current status...\n" )
          
          for idx,val in enumerate( GLOB_PLAYERS[sel].Status ) :
