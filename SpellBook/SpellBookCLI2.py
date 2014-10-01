@@ -95,6 +95,17 @@ def AdvSanatizeString( Input_String ):
    Input_String = re.sub( '</p>', "\n\n", Input_String )
    Input_String = re.sub( '<p>', '', Input_String )
    return Input_String
+
+def PrintHelpString( ):
+   print "Help!"
+   print "x: Exit"
+   print "h: This help statement"
+   print "v#: Change verbosity"
+   print "   v0: Absolute minimum"
+   print "   v1: Basic Spell Info"
+   print "   v2: Castable Spell Info"
+   print "   v3: Full Spell Info"
+   print "Current Verbosity: {}".format( Verbosity )
    
 
 with open( 'spell_full.csv' ) as fp:
@@ -117,6 +128,9 @@ with open( 'spell_full.csv' ) as fp:
 
 spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
 
+
+
+PrintHelpString()
 Prev_User_Selection_Raw = ""
 User_Selection_Raw = ""
 while( True ):
@@ -137,14 +151,7 @@ while( True ):
       continue
 
    if ( User_Selection_Raw in [ 'h', 'H', '?', '?' ] or len( User_Selection_Raw ) == 0 ): 
-      print "Help!"
-      print "x: Exit"
-      print "h: This help statement"
-      print "v#: Change verbosity"
-      print "   v0: Absolute minimum"
-      print "   v1: Basic Spell Info"
-      print "   v2: Castable Spell Info"
-      print "   v3: Full Spell Info"
+      PrintHelpString()
       continue
 
    try:
