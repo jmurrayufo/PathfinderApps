@@ -108,21 +108,34 @@ def AdvSanatizeString( Input_String ):
    return Input_String
 
 def PrintHelpString( ):
+   print "\nAvliable Options"
    print "x: Exit"
    print "h: This help statement"
-   print "v: Change verbosity"
-
+   print "v: Change Verbosity (Currently {})".format( Verbosity )
+   print
    print "a: Add a Filter"
-   print "r: Remove a Filter"
-   print "e: Edit a Filter"
-   
+   print "r: Remove a Filter (NOT IMPLIMENTED)"
+   print "e: Edit a Filter (NOT IMPLIMENTED)"
+   print
    print "Enter: Search & Display"
-   print "Current Verbosity: {}".format( Verbosity )
-   
+
+def DisplayCurrentFilter( ):
+   global Filter_Dict
+   print "Current Filter:"
+
+   if len( Filter_Dict ) < 1 :
+      print "  Empty"
+      return
+
+   for i in Filter_Dict:
+      print "  {}: {}".format(i,Filter_Dict[i])
+
 def ChangeVerbosity( ):
    global Verbosity
 
+   print "\n\n<<< Chang Verbosity >>>"
    print "\nEnter new Verbosity Setting"
+   print "Current Setting is {}".format( Verbosity )
    print "0 => Name Only"
    print "1 => Gameplay Details"
    print "2 => Casting Details"
@@ -131,13 +144,19 @@ def ChangeVerbosity( ):
 
    try :
       Verbosity = input( "> " )
-   except :
+   except ( ValueError, NameError ) :
+      print "Invalid type, Verbosity unchanged"
+      return
+   except ( SyntaxError ) :
+      print "Verbosity remains at {}".format( Verbosity )
       return
 
    try :
       Verbosity = int( Verbosity )
    except ValueError :
-      Verbosity = 1
+      print "Invalid Verbosity, setting unchanged"
+
+   print "Verbosity set to {}".format( Verbosity )
 
    return
 
@@ -146,7 +165,7 @@ def AddFilter( ):
    global completionList
    global Filter_Dict
    # Select type of Filter to add
-   allowedFilterTypes = [ 'name',
+   allowedFilterTypes = [ 'name', 
       'school',
       'subschool',
       'descriptor',
@@ -230,8 +249,30 @@ def AddFilter( ):
    readline.parse_and_bind( "tab: complete" )
    readline.set_completer( completer )
    
-   print "\nSelect Filter Type:"
-   filterType = raw_input( "> " )
+   filterType = ""
+   while not len( filterType ) :
+      print "\n\n<<< Add Filter >>>"
+      print "\nSelect csv Field to filter by"
+      print "Tab complete for suggestions"
+      print "Enter 'help' for a help screen"
+      filterType = raw_input( "> " )
+
+      if filterType == 'help' :
+         filterType = ""
+
+         print "Filtering is done off of the raw CSV dump from the PFSRD. Note "
+         print "  that prestige classes are not supported. After selecting a "
+         print "  field you will be asked to give a valid regex. If ALL given "
+         print "  filters match a spell, it will be returned in the search. "
+         print "Example:"
+         print "  Enter 'name' as your filter field"
+         print "  Enter 'magic' as your valid regex"
+         print "  Press enter on the main menu to find ALL spells with 'magic'"
+         print "    in their name."
+         print "NOTE:"
+         print "  Searches are NOT case sensitive!"
+
+
    if filterType not in allowedFilterTypes :
       completionList = []
       readline.set_completer( completer )
@@ -263,9 +304,15 @@ def RunSearch():
    # Determine if any spells match the regex of the input
    tmpSpellList = []
    for i in spellDBFiletered :
+      # Check EACH element of the current list.
+      # If any check fails, break from the check
       for filterType in Filter_Dict :
-         if re.match( Filter_Dict[ filterType ], i[ filterType ], flags=re.IGNORECASE ) :
-            tmpSpellList.append( i )
+         if not re.search( Filter_Dict[ filterType ], i[ filterType ], flags=re.IGNORECASE ) :
+            break
+      # If ALL checks pass, we execute the else and append the spell
+      else:
+         tmpSpellList.append( i )
+
 
    tmpSpellList = sorted( tmpSpellList, key = lambda x: x['name'] )
 
@@ -274,8 +321,11 @@ def RunSearch():
          print
       PrettyPrintSpell( i, Verbosity )
 
+
    if( not len( tmpSpellList ) ):
       print "No Spells found that match"
+   else:
+      print "Found {} spells".format( len( tmpSpellList ) ) 
 
 def Main( ):
    global Filter_Dict
@@ -290,12 +340,13 @@ def Main( ):
       for i in csvreader:
 
          # Attempt to convert the elements in the row to ints
-         for x in i:
-            try:
-               i[x] = int( i[x] )
-               continue
-            except ValueError:
-               pass
+         # This caused regex to shit builder grade bricks, removed
+         # for x in i:
+         #    try:
+         #       i[x] = int( i[x] )
+         #       continue
+         #    except ValueError:
+         #       pass
 
 
          # Append the converted row to the spell DB
@@ -305,9 +356,15 @@ def Main( ):
    spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
 
    User_Selection_Raw = ""
+   PrintHelpString()
    while( True ):
-      PrintHelpString()
 
+      print "\n\n<<< Main Menu >>>"
+      print "h: help"
+      print
+      DisplayCurrentFilter()
+      print
+      print "Enter Command, or press enter to search"
       User_Selection_Raw = raw_input( "> " )
 
       # Determine if this was a control statement, respond and loop
@@ -347,10 +404,8 @@ Main()
 
 
 """
-Supported Filters:
-   name
-Unsupported Filters:
 
+   name
    school
    subschool
    descriptor
@@ -371,7 +426,7 @@ Unsupported Filters:
    description_formated
    source
    full_text
-Parts
+Components
    verbal
    somatic
    material
