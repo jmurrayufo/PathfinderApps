@@ -113,8 +113,10 @@ class Player( object ):
          if self.Status[key] > 0 :
             self.Status[key] -= 1
       
-      for i in keysToDelete :
-         del self.Status[i]
+      # We can delete this way, as the keys are not index specifc, and 
+      #  keysToDelete wont change!
+      for key in keysToDelete :
+         del self.Status[key]
 
 
       self.Active = True
