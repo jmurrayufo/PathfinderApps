@@ -104,7 +104,7 @@ def RunMenu( menuTuple, menuTitle, loop = True ):
       stdscr.addstr( "<<< %s >>>\n"%( menuTitle ) )
       for idx,val in enumerate( menuTuple ):
          stdscr.addstr( "[%d] %s\n"%( idx+1, val[0] ) )
-      stdscr.addstr("> ")
+      stdscr.addstr(">> ")
       stdscr.refresh()
 
 
@@ -164,7 +164,7 @@ def DefaultGroup( ):
          stdscr.addstr( "WARNING! Active Player Detected! Overwrite? (y/n)\n" )
          
          # Check to see if the user really wants to overwrite.
-         stdscr.addstr( "> " )
+         stdscr.addstr( ">> " )
          if stdscr.getkey() == 'y' :
             break
          else:
@@ -318,7 +318,7 @@ def EditPlayer( ):
       stdscr.refresh()
       sel = stdscr.getkey()
 
-      if sel == '\n' :
+      if sel in [ '\n', 'x' ] :
          return
 
       try:
@@ -331,8 +331,8 @@ def EditPlayer( ):
          sel -= 1
 
          stdscr.addstr( "You can press enter to skip new changes\n" )
-         stdscr.addstr( "Selected to edit: {}\n".format( 
-            GLOB_PLAYERS[ sel ].GetStr() 
+         stdscr.addstr( "Selected to edit: {Name} [{Init}]\n".format( 
+            **GLOB_PLAYERS[ sel ].GetStrDict() 
             ) 
          )
          
@@ -366,12 +366,13 @@ def RunEncounter( ):
       stdscr.addstr( "#: Select Active Player\n" )
       stdscr.addstr( "0: No Active Player, pause game\n" )
       stdscr.addstr( "n: Next Player\n" )
-      stdscr.addstr( "s: Status Edit Menu\n" )
       stdscr.addstr( "\n" )
+      stdscr.addstr( "s: Status Edit Menu\n" )
       stdscr.addstr( "a: Add Player\n" )
-      stdscr.addstr( "b: Blast In Players\n" )
       stdscr.addstr( "d: Delete Player\n" )
       stdscr.addstr( "e: Edit Player\n" )
+      stdscr.addstr( "\n" )
+      stdscr.addstr( "b: Blast In Players\n" )
       stdscr.addstr( "i: Blast In Initiatives\n" )
       stdscr.addstr( "\n" )
       stdscr.addstr( "r: Reset Encounter\n" )
@@ -393,11 +394,6 @@ def RunEncounter( ):
       # curses.echo()
       sel = stdscr.getkey()
 
-      if ( sel in ["?","help","h","HELP","Help"]):
-         PrintHelp()
-         raw_input("Press Enter to continue...")
-         continue
-
       # Exit from this menu
       if ( sel in ["x","X"] ):
          break
@@ -410,30 +406,30 @@ def RunEncounter( ):
          BlastPlayers()
          continue
 
-      if ( sel in ["a","A"] ):
+      if sel in [ 'a' ] :
          AddPlayer()
          continue
 
-      if ( sel in ["r", "R"] ):
+      if sel in [ 'r' ] :
          if ( GetInput( "\nARE YOU SURE???> ", str ) in [ "y", "Y" ] ):
             for i in GLOB_PLAYERS:
                i.Clear()
          continue
 
-      if ( sel in ["e","E"] ):
+      if sel in [ 'e' ] :
          EditPlayer()
          continue
 
-      if ( sel in ["d","D"] ):
+      if sel in [ 'd' ] :
          DelPlayer()
          continue
 
-      if sel in ["s","S"] :
+      if sel in [ 's' ] :
          StatusMenu()
          continue
 
       # Next Player
-      if ( sel in ["n","N"] ):
+      if sel in ['n',' '] :
          # Find Active Player
          activeIdx = None
          for idx,val in enumerate( GLOB_PLAYERS ):
@@ -478,7 +474,7 @@ def StatusMenu( ):
       stdscr.refresh()
       tmp = stdscr.getkey()
 
-      if tmp == '\n' :
+      if tmp in ['\n','x'] :
          return
 
       try:
@@ -498,7 +494,10 @@ def StatusMenu( ):
 def StatusSubMenu( sel ):
    while True :
       stdscr.clear()
-      stdscr.addstr( "Editing the status of {}\n".format( GLOB_PLAYERS[sel].Name ) )
+      stdscr.addstr( "Editing Status\n" )
+      stdscr.addstr( "Player: " )
+      stdscr.addstr( "{Name} ".format( **GLOB_PLAYERS[sel].GetStrDict() ), curses.A_BOLD )
+      stdscr.addstr( "[{Init}]\n".format( **GLOB_PLAYERS[sel].GetStrDict() ) )
       
       stdscr.addstr( "Current Status:\n" )
       for i in GLOB_PLAYERS[sel].Status : 
