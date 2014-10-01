@@ -312,7 +312,49 @@ def AddFilter( ):
 
 
 def RemoveFilter( ):
-   pass
+   global Filter_Dict
+   print "\n\n<<< Remove Filter >>>"
+   print "Blank line to return"
+   print "Enter index of item to delete"
+   print "Current Filters:"
+   
+   if not len( Filter_Dict ) :
+      print "  NONE! Sorry, we can't delete nothing!"
+      return
+   
+   for idx,val in enumerate( Filter_Dict ) :
+      print "  [{}] {}: {}".format( idx+1, val, Filter_Dict[ val ] )
+
+   try:
+      user_selection = input( "> " )
+   except ( ValueError, NameError ) :
+      print "Invalid int, returning"
+      return
+   except ( SyntaxError ) :
+      print "No changes"
+      return
+
+   # Shift to corrent indexing (We added one to display to users)
+   user_selection -= 1 
+
+   # Loop through to try to find the index to delete
+   for idx,val in enumerate( Filter_Dict ) :
+      if idx == user_selection :
+         keyToDelete = val
+         break
+   # If we didn't break, we didn't find that index. Tell the user and return
+   else:
+      print "Index invalid, returning to Main Menu"
+      return
+
+   # If we didn't return in the else of the for loop, we found the key
+   # Delete it
+   print "Removed filter: {}: {}".format( 
+      keyToDelete, 
+      Filter_Dict[ keyToDelete ] 
+   )
+   del Filter_Dict[ keyToDelete ]
+
 
 def EditFilter( ):
    pass
