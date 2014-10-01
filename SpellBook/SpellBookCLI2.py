@@ -19,6 +19,9 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 # 3: Full Spell Info
 Verbosity = 1
 
+global completionList
+completionList = []
+
 def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    if( detailLevel == 0 ):
       outputStr = "%s: %s"
@@ -85,6 +88,14 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       
       print outputStr%("Source",inputEntry['source'])
 
+def completer(text, state):
+   global completionList
+   options = [i for i in completionList if i.startswith(text)]
+   if state < len(options):
+      return options[state]
+   else:
+      return None 
+
 def SanatizeString( Input_String ):
    for i in range( 128, 256 ):
       Input_String = Input_String.replace( chr(i) ,"")
@@ -97,84 +108,164 @@ def AdvSanatizeString( Input_String ):
    return Input_String
 
 def PrintHelpString( ):
-   print "Help!"
    print "x: Exit"
    print "h: This help statement"
-   print "v#: Change verbosity"
-   print "   v0: Absolute minimum"
-   print "   v1: Basic Spell Info"
-   print "   v2: Castable Spell Info"
-   print "   v3: Full Spell Info"
+   print "v: Change verbosity"
+
+   print "a: Add a Filter"
+   print "r: Remove a Filter"
+   print "e: Edit a Filter"
+   
+   print "Enter: Search & Display"
    print "Current Verbosity: {}".format( Verbosity )
    
+def ChangeVerbosity( ):
+   global Verbosity
 
-with open( 'spell_full.csv' ) as fp:
-   csvreader = csv.DictReader( fp )
-   columns = csvreader.fieldnames
-   spellDB = []
-   for i in csvreader:
+   print "\nEnter new Verbosity Setting"
+   print "0 => Name Only"
+   print "1 => Gameplay Details"
+   print "2 => Casting Details"
+   print "3 => Full Details"
+   print "4 => OMFG (Not yet supported)"
 
-      # Attempt to convert the elements in the row to ints
-      for x in i:
-         try:
-            i[x] = int( i[x] )
-            continue
-         except ValueError:
-            pass
+   try :
+      Verbosity = input( "> " )
+   except :
+      return
 
+   try :
+      Verbosity = int( Verbosity )
+   except ValueError :
+      Verbosity = 1
 
-      # Append the converted row to the spell DB
-      spellDB.append( i )
-
-spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
-
-
-
-PrintHelpString()
-Prev_User_Selection_Raw = ""
-User_Selection_Raw = ""
-while( True ):
-
-   Prev_User_Selection_Raw = User_Selection_Raw
-
-   User_Selection_Raw = raw_input( "> " )
+   return
 
 
-   # Determine if this was a control statement, respond and loop
-   if ( User_Selection_Raw in [ 'x', 'X', 'q', 'Q' ] ): 
-      break
-
-   tmp = re.match( "[vV](\d+)", User_Selection_Raw ) 
-   if ( tmp ):
-      print "Verbosity Changed to", int( tmp.groups()[0] )
-      Verbosity = int( tmp.groups()[0] )
-      continue
-
-   if ( User_Selection_Raw in [ 'h', 'H', '?', '?' ] or len( User_Selection_Raw ) == 0 ): 
-      PrintHelpString()
-      continue
-
+def AddFilter( ):
+   global completionList
+   global Filter_Dict
+   # Select type of Filter to add
+   allowedFilterTypes = [ 'name',
+      'school',
+      'subschool',
+      'descriptor',
+      'spell_level',
+      'casting_time',
+      'components',
+      'costly_components',
+      'range',
+      'area',
+      'effect',
+      'targets',
+      'duration',
+      'dismissible',
+      'shapeable',
+      'saving_throw',
+      'spell_resistence',
+      'description',
+      'description_formated',
+      'source',
+      'full_text',
+      'verbal',
+      'somatic',
+      'material',
+      'focus',
+      'divine_focus',
+      'sor',
+      'wiz',
+      'cleric',
+      'druid',
+      'ranger',
+      'bard',
+      'paladin',
+      'alchemist',
+      'summoner',
+      'witch',
+      'inquisitor',
+      'oracle',
+      'antipaladin',
+      'magus',
+      'adept',
+      'deity',
+      'SLA_Level',
+      'domain',
+      'short_description',
+      'acid',
+      'air',
+      'chaotic',
+      'cold',
+      'curse',
+      'darkness',
+      'death',
+      'disease',
+      'earth',
+      'electricity',
+      'emotion',
+      'evil',
+      'fear',
+      'fire',
+      'force',
+      'good',
+      'language_dependent',
+      'lawful',
+      'light',
+      'mind_affecting',
+      'pain',
+      'poison',
+      'shadow',
+      'sonic',
+      'water',
+      'linktext',
+      'id',
+      'material_costs',
+      'bloodline',
+      'patron',
+      'mythic_text',
+      'augmented',
+      'mythic',
+   ]
+   # Deep copy that thing!
+   completionList = list( allowedFilterTypes )
+   readline.parse_and_bind( "tab: complete" )
+   readline.set_completer( completer )
+   
+   print "\nSelect Filter Type:"
+   filterType = raw_input( "> " )
+   if filterType not in allowedFilterTypes :
+      completionList = []
+      readline.set_completer( completer )
+      return False
+   
+   print "\nEnter value to filter by (valid regex)"
+   filterValue = raw_input( "> " )
    try:
-      re.compile( User_Selection_Raw )
+      re.compile( filterValue )
    except sre_constants.error, e:
-      print "Your regex had the following error:",e
-      print "Dont do that!"
-      continue
+      completionList = []
+      readline.set_completer( completer )
+      return False
 
-   # Take previous input if nothing is given
-   if ( not len( User_Selection_Raw ) ):
-      User_Selection_Raw = Prev_User_Selection_Raw
-      # STILL no input? ok, %$#% this, NEXT!
-      if ( not len( User_Selection_Raw ) ):
-         continue
+   Filter_Dict[ filterType ] = filterValue
+   return True
 
 
 
+def RemoveFilter( ):
+   pass
+
+def EditFilter( ):
+   pass
+
+def RunSearch():
+   global spellDBFiletered
+   global Filter_Dict
    # Determine if any spells match the regex of the input
    tmpSpellList = []
-   for i in spellDBFiletered:
-      if ( re.match( User_Selection_Raw, i['name'], flags=re.IGNORECASE ) ):
-         tmpSpellList.append( i )
+   for i in spellDBFiletered :
+      for filterType in Filter_Dict :
+         if re.match( Filter_Dict[ filterType ], i[ filterType ], flags=re.IGNORECASE ) :
+            tmpSpellList.append( i )
 
    tmpSpellList = sorted( tmpSpellList, key = lambda x: x['name'] )
 
@@ -183,11 +274,158 @@ while( True ):
          print
       PrettyPrintSpell( i, Verbosity )
 
-   # Nothing happened? Make fun of the user and loop
-
    if( not len( tmpSpellList ) ):
-      print "You suck at this!"
-      print "We could not find any spells with \"%s\" in them."%( User_Selection_Raw )
+      print "No Spells found that match"
+
+def Main( ):
+   global Filter_Dict
+   global spellDBFiletered
+
+   Filter_Dict = {}
+
+   with open( 'spell_full.csv' ) as fp:
+      csvreader = csv.DictReader( fp )
+      columns = csvreader.fieldnames
+      spellDB = []
+      for i in csvreader:
+
+         # Attempt to convert the elements in the row to ints
+         for x in i:
+            try:
+               i[x] = int( i[x] )
+               continue
+            except ValueError:
+               pass
+
+
+         # Append the converted row to the spell DB
+         spellDB.append( i )
+
+
+   spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
+
+   User_Selection_Raw = ""
+   while( True ):
+      PrintHelpString()
+
+      User_Selection_Raw = raw_input( "> " )
+
+      # Determine if this was a control statement, respond and loop
+      if ( User_Selection_Raw in [ 'x', 'X', 'q', 'Q' ] ): 
+         break
+
+      if User_Selection_Raw == 'v' :
+         ChangeVerbosity()
+         continue
+
+      if User_Selection_Raw == 'a' :
+         AddFilter()
+         continue
+
+      if User_Selection_Raw == 'r' :
+         RemoveFilter()
+         continue
+
+      if User_Selection_Raw == 'e' :
+         EditFilter()
+         continue
+
+      if User_Selection_Raw in [ 'h', '?' ] : 
+         PrintHelpString()
+         continue
+
+      if len( User_Selection_Raw ) == 0 :
+         RunSearch()
+         continue
+
+      print "WTF was that? I don't know what to do with '{}'".format( User_Selection_Raw )
+      print "You come back when you know what you're doing!"
 
 
 
+Main()
+
+
+"""
+Supported Filters:
+   name
+Unsupported Filters:
+
+   school
+   subschool
+   descriptor
+   spell_level
+   casting_time
+   components
+   costly_components
+   range
+   area
+   effect
+   targets
+   duration
+   dismissible
+   shapeable
+   saving_throw
+   spell_resistence
+   description
+   description_formated
+   source
+   full_text
+   verbal
+   somatic
+   material
+   focus
+   divine_focus
+   sor
+   wiz
+   cleric
+   druid
+   ranger
+   bard
+   paladin
+   alchemist
+   summoner
+   witch
+   inquisitor
+   oracle
+   antipaladin
+   magus
+   adept
+   deity
+   SLA_Level
+   domain
+   short_description
+   acid
+   air
+   chaotic
+   cold
+   curse
+   darkness
+   death
+   disease
+   earth
+   electricity
+   emotion
+   evil
+   fear
+   fire
+   force
+   good
+   language_dependent
+   lawful
+   light
+   mind_affecting
+   pain
+   poison
+   shadow
+   sonic
+   water
+   linktext
+   id
+   material_costs
+   bloodline
+   patron
+   mythic_text
+   augmented
+   mythic
+"""
