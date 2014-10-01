@@ -371,11 +371,13 @@ Unsupported Filters:
    description_formated
    source
    full_text
+Parts
    verbal
    somatic
    material
    focus
    divine_focus
+Class   
    sor
    wiz
    cleric
@@ -392,9 +394,11 @@ Unsupported Filters:
    magus
    adept
    deity
+
    SLA_Level
    domain
    short_description
+Type
    acid
    air
    chaotic
@@ -420,6 +424,7 @@ Unsupported Filters:
    shadow
    sonic
    water
+
    linktext
    id
    material_costs
