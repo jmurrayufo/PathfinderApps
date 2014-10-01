@@ -162,8 +162,10 @@ def ChangeVerbosity( ):
 
 
 def AddFilter( ):
+   # Be clear about globals
    global completionList
    global Filter_Dict
+
    # Select type of Filter to add
    allowedFilterTypes = [ 'name', 
       'school',
@@ -244,11 +246,14 @@ def AddFilter( ):
       'augmented',
       'mythic',
    ]
-   # Deep copy that thing!
+   
+   # Deep copy that thing, and apply to current completer
    completionList = list( allowedFilterTypes )
    readline.parse_and_bind( "tab: complete" )
    readline.set_completer( completer )
    
+   # Get the filter type, and offer help to user. 
+   # This loop is a bit clunky, but will help with new users a LOT
    filterType = ""
    while not len( filterType ) :
       print "\n\n<<< Add Filter >>>"
@@ -257,9 +262,11 @@ def AddFilter( ):
       print "Enter 'help' for a help screen"
       filterType = raw_input( "> " )
 
+      # Print very verbose help to the user. 
       if filterType == 'help' :
-         filterType = ""
 
+         # Reset this to prevent leaving the loop
+         filterType = ""
          print "Filtering is done off of the raw CSV dump from the PFSRD. Note "
          print "  that prestige classes are not supported. After selecting a "
          print "  field you will be asked to give a valid regex. If ALL given "
@@ -272,21 +279,33 @@ def AddFilter( ):
          print "NOTE:"
          print "  Searches are NOT case sensitive!"
 
+      # Allow blank lines to exit this mode still
+      elif not len( filterType ) :
+         return
 
+   # Check to see if we got a valid filter type
    if filterType not in allowedFilterTypes :
+      print "Sorry, we can't filted based on '{}'".format( filterType )
       completionList = []
       readline.set_completer( completer )
       return False
    
+   # Now lets get the regex from the user
    print "\nEnter value to filter by (valid regex)"
    filterValue = raw_input( "> " )
+
+   # Run a test compile of the regex so we know we got something usable later
    try:
       re.compile( filterValue )
+   # Tell the user that they don't know how to regex, then return to main menu
    except sre_constants.error, e:
+      print "Sorry, but '{}' isn't a valid regex in python".format( filterValue )
+      print "Error given: {}".format( e )
       completionList = []
       readline.set_completer( completer )
       return False
 
+   # We have a valid regex, save it and return 
    Filter_Dict[ filterType ] = filterValue
    return True
 
