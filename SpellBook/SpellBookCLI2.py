@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 import csv
-import time
-import textwrap
+import os
 import re
-import sre_constants
 import readline
+import sre_constants
+import textwrap
+import time
 
 # Options
 
@@ -21,6 +22,14 @@ Verbosity = 1
 
 global completionList
 completionList = []
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
 
 def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    if( detailLevel == 0 ):
@@ -121,14 +130,14 @@ def PrintHelpString( ):
 
 def DisplayCurrentFilter( ):
    global Filter_Dict
-   print "Current Filter:"
+   print "Current Filter(s):"
 
    if len( Filter_Dict ) < 1 :
       print "  Empty"
       return
 
    for i in Filter_Dict:
-      print "  {}: {}".format(i,Filter_Dict[i])
+      print "  {}=> {}".format(i,Filter_Dict[i])
 
 def ChangeVerbosity( ):
    global Verbosity
@@ -167,7 +176,8 @@ def AddFilter( ):
    global Filter_Dict
 
    # Select type of Filter to add
-   allowedFilterTypes = [ 'name', 
+   allowedFilterTypes = [ 
+      'name', 
       'school',
       'subschool',
       'descriptor',
@@ -247,6 +257,52 @@ def AddFilter( ):
       'mythic',
    ]
    
+   classFilters = [ 
+      'sor',
+      'wiz',
+      'cleric',
+      'druid',
+      'ranger',
+      'bard',
+      'paladin',
+      'alchemist',
+      'summoner',
+      'witch',
+      'inquisitor',
+      'oracle',
+      'antipaladin',
+      'magus',
+      'adept',
+   ]
+
+   typeFilters = [
+      'acid',
+      'air',
+      'chaotic',
+      'cold',
+      'curse',
+      'darkness',
+      'death',
+      'disease',
+      'earth',
+      'electricity',
+      'emotion',
+      'evil',
+      'fear',
+      'fire',
+      'force',
+      'good',
+      'language_dependent',
+      'lawful',
+      'light',
+      'mind_affecting',
+      'pain',
+      'poison',
+      'shadow',
+      'sonic',
+      'water',
+   ]
+   
    # Deep copy that thing, and apply to current completer
    completionList = list( allowedFilterTypes )
    readline.parse_and_bind( "tab: complete" )
@@ -258,8 +314,9 @@ def AddFilter( ):
    while not len( filterType ) :
       print "\n\n<<< Add Filter >>>"
       print "\nSelect csv Field to filter by"
-      print "Tab complete for suggestions"
-      print "Enter 'help' for a help screen"
+      print "!!! Enter 'help' for a help screen !!!"
+      print "Hit tab to see completions. Hitting tab without anything entered"
+      print "  will show all avliable fields!"
       filterType = raw_input( "> " )
 
       # Print very verbose help to the user. 
@@ -278,6 +335,17 @@ def AddFilter( ):
          print "    in their name."
          print "NOTE:"
          print "  Searches are NOT case sensitive!"
+         print "Examples:"
+         print "  Search for 'wiz' with a regex of '1|2' to find all of your "
+         print "  first and second level spells"
+         print
+         print "  Search for 'wiz' with a regex of '[0-9]' and 'fire' with "
+         print "  a filter of '1' to find all wizard spells that deal fire "
+         print "  damage. "
+         print
+         print "  If you arn't sure where to search, 'full_text' is a very"
+         print "  verbose field, and is basicly a copy from the book text."
+         print "  searching this is a workable catch all"
 
       # Allow blank lines to exit this mode still
       elif not len( filterType ) :
@@ -290,9 +358,28 @@ def AddFilter( ):
       readline.set_completer( completer )
       return False
    
+   # We now offer any help we can
+   if filterType in classFilters :
+      print "\nYou have selected to filter based on '{}'".format( filterType )
+      print "  This is a CLASS filter. Items in the CSV will have one of two potential values."
+      print "  If your class has that spell, the spell level will be given as a intiger"
+      print "  If your class does not have the spell, 'null' will be listed in this field"
+      print "  A good exampe for a regex that will find all spells from levels 0 to 2 would be [0-2]"
+
+   if filterType in typeFilters :
+      print "\nYou have selected to filter based on '{}'".format( filterType )
+      print "  This is a TYPE filter. If a given spell has that type of damage/effect/descriptor"
+      print "  it will have a '1' in this field. IF it does not have that type, it will have a 0"
+      print "  in that field. "
+
    # Now lets get the regex from the user
    print "\nEnter value to filter by (valid regex)"
    filterValue = raw_input( "> " )
+
+   # Empty filters make me Cry!
+   if len( filterValue ) == 0 :
+      print "Error: We need SOMETHING to filter by!"
+      return
 
    # Run a test compile of the regex so we know we got something usable later
    try:
@@ -322,8 +409,10 @@ def RemoveFilter( ):
       print "  NONE! Sorry, we can't delete nothing!"
       return
    
+   
    for idx,val in enumerate( Filter_Dict ) :
-      print "  [{}] {}: {}".format( idx+1, val, Filter_Dict[ val ] )
+      print '\033[33m' + "  [{}] {}: {}".format( idx+1, val, Filter_Dict[ val ] ) + '\033[0m'
+
 
    try:
       user_selection = input( "> " )
@@ -359,7 +448,7 @@ def RemoveFilter( ):
 def EditFilter( ):
    pass
 
-def RunSearch():
+def RunSearch( ):
    global spellDBFiletered
    global Filter_Dict
    # Determine if any spells match the regex of the input
@@ -387,6 +476,14 @@ def RunSearch():
       print "No Spells found that match"
    else:
       print "Found {} spells".format( len( tmpSpellList ) ) 
+   raw_input( "Press enter to continue..." )
+
+def ClearScreen( ):
+   try:
+      os.system('clear')
+   except:
+      os.system('cls')
+
 
 def Main( ):
    global Filter_Dict
@@ -416,10 +513,15 @@ def Main( ):
 
    spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
 
+   from pprint import pprint
+
+   for i in range(3):
+      pprint( spellDBFiletered[i] )
+
    User_Selection_Raw = ""
    PrintHelpString()
    while( True ):
-
+      ClearScreen()
       print "\n\n<<< Main Menu >>>"
       print "h: help"
       print
