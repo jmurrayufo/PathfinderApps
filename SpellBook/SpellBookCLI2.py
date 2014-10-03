@@ -495,7 +495,7 @@ def RemoveFilter( ):
    
    
    for idx,val in enumerate( Filter_Dict ) :
-      print "  [" + bcolors.GREEN + "{}" + bcolors.RESET + "] {}: {}".format( idx+1, val, Filter_Dict[ val ] )
+      print "  [" + bcolors.GREEN + "{}".format( idx + 1 ) + bcolors.RESET + "] {}: {}".format( val, Filter_Dict[ val ] )
 
 
    try :
