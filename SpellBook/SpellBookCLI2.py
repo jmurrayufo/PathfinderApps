@@ -475,7 +475,7 @@ def AddFilter( ):
 def RemoveFilter( ):
    global Filter_Dict
    print "\n\n<<< Remove Filter >>>"
-print "Blank line to return"
+   print "Blank line to return"
    print "Enter index of item to delete"
    print "Current Filters:"
    
@@ -490,7 +490,7 @@ print "Blank line to return"
       print "  [" + bcolors.GREEN + "{}" + bcolors.RESET + "] {}: {}".format( idx+1, val, Filter_Dict[ val ] )
 
 
-   try:
+   try :
       user_selection = input( "> " )
    except ( ValueError, NameError ) :
       print "Invalid int, returning"
