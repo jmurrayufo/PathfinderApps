@@ -70,9 +70,16 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       outputStr = "%12s: %s"
    
    print outputStr%('Name', '\033[1;4m' + inputEntry['name'] + '\033[0m' )
+   # We can save ourselves a lot of statements but just bailing out on a detail level 0
    if( detailLevel == 0 ):
       return
    
+   try :
+      rows, columns = os.popen('stty size', 'r').read().split()
+      columns = int( columns ) - 5
+   except :
+      columns = 70
+
    print outputStr%('Components',inputEntry['components'])
    
    print outputStr%('Duration',inputEntry['duration'].capitalize( ) )
@@ -85,12 +92,13 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    
    if( detailLevel >= 2 ):
       tmp = outputStr%('Spell Level',inputEntry['spell_level'] )
-      print '\n'.join( textwrap.TextWrapper(subsequent_indent='                 ').wrap(tmp) )
+      print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )
 
       # Not all spells have resistance info. 
       if( inputEntry['spell_resistence'] ):
          print outputStr%('Resistance', inputEntry['spell_resistence'].capitalize( ) )
-      
+
+      # Print school, but NOT a new line. This allows us to add a sub school if it exists!
       print outputStr%('School',inputEntry['school'].capitalize( ) ),
       
       if( inputEntry['subschool'] ):
@@ -108,11 +116,6 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    if( inputEntry['range'] ):
       print outputStr%('Range',inputEntry['range'].capitalize( ) )
 
-   try :
-      rows, columns = os.popen('stty size', 'r').read().split()
-      columns = int( columns ) - 5
-   except :
-      columns = 70
 
    if( detailLevel > 0 and detailLevel < 3 ):
       tmp = outputStr%('Description',inputEntry['short_description'])
@@ -589,9 +592,7 @@ def Main( ):
          # Append the converted row to the spell DB
          spellDB.append( i )
 
-
    spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
-
 
    User_Selection_Raw = ""
    while( True ):
