@@ -133,6 +133,8 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
          else:
             print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ', initial_indent='                 ').wrap(val) )
       
+      print outputStr%("Link",inputEntry['linktext'])
+
       print outputStr%("Source",inputEntry['source'])
 
 def completer(text, state):
