@@ -18,15 +18,16 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
 
 print "Coloums:"
-for i in columns:
-   print i
+for field in columns:
 
-Results = set()
+   Results = set()
 
-for row in spellDBFiletered :
-   # print row
-   Results.add( row[targetColoumn] )
+   for row in spellDBFiletered :
+      # print row
+      Results.add( row[field] )
 
-print "\n\nResults"
-for i in Results:
-   print i
+   for i in Results:
+      print " " + i
+
+   print "FIELD TYPE:",field
+   raw_input("next...")
