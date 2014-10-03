@@ -55,3 +55,6 @@ target/
 
 # Small test files
 test.py
+
+# VIM Swap Files
+*.swp
