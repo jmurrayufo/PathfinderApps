@@ -107,11 +107,17 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    # Not all spells have targets, dont print if we lack that data
    if( inputEntry['range'] ):
       print outputStr%('Range',inputEntry['range'].capitalize( ) )
-   
+
+   try :
+      rows, columns = os.popen('stty size', 'r').read().split()
+      columns = int( columns ) - 5
+   except :
+      columns = 70
+
    if( detailLevel > 0 and detailLevel < 3 ):
       tmp = outputStr%('Description',inputEntry['short_description'])
       tmp = SanatizeString( tmp )
-      print '\n'.join( textwrap.TextWrapper(subsequent_indent='                 ').wrap(tmp) )
+      print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )
 
    
    elif( detailLevel >= 3 ):
@@ -123,9 +129,9 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
             break
          
          if ( idx == 0 ):
-            print '\n'.join( textwrap.TextWrapper(subsequent_indent='                 ').wrap(val) )
+            print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(val) )
          else:
-            print '\n'.join( textwrap.TextWrapper(subsequent_indent='                 ', initial_indent='                 ').wrap(val) )
+            print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ', initial_indent='                 ').wrap(val) )
       
       print outputStr%("Source",inputEntry['source'])
 
