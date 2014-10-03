@@ -24,12 +24,44 @@ global completionList
 completionList = []
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
+   BLACK = '\033[30m'
+   RED = '\033[31m'
+   GREEN = '\033[32m'
+   YELLOW = '\033[33m'
+   BLUE = '\033[34m'
+   MAGENTA = '\033[35m'
+   CYAN = '\033[36m'
+   WHITE = '\033[37m'
+   
+   BLACKI = '\033[90m'
+   REDI = '\033[91m'
+   GREENI = '\033[92m'
+   YELLOWI = '\033[93m'
+   BLUEI = '\033[94m'
+   MAGENTAI = '\033[95m'
+   CYANI = '\033[96m'
+   WHITEI = '\033[97m'
+
+   BBLACK = '\033[40m'
+   BRED = '\033[41m'
+   BGREEN = '\033[42m'
+   BYELLOW = '\033[43m'
+   BBLUE = '\033[44m'
+   BMAGENTA = '\033[45m'
+   BCYAN = '\033[46m'
+   BWHITE = '\033[47m'
+   
+   BBLACKI = '\033[100m'
+   BREDI = '\033[101m'
+   BGREENI = '\033[102m'
+   BYELLOWI = '\033[103m'
+   BBLUEI = '\033[104m'
+   BMAGENTAI = '\033[105m'
+   BCYANI = '\033[106m'
+   BWHITEI = '\033[107m'
+   
+
+   RESET = '\033[0m'
 
 def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    if( detailLevel == 0 ):
@@ -37,7 +69,7 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    if( detailLevel >= 1 ):
       outputStr = "%12s: %s"
    
-   print outputStr%('Name',inputEntry['name'])
+   print outputStr%('Name', '\033[1;4m' + inputEntry['name'] + '\033[0m' )
    if( detailLevel == 0 ):
       return
    
@@ -118,15 +150,15 @@ def AdvSanatizeString( Input_String ):
 
 def PrintHelpString( ):
    print "\nAvliable Options"
-   print "x: Exit"
-   print "h: This help statement"
-   print "v: Change Verbosity (Currently {})".format( Verbosity )
+   print bcolors.GREEN + "x" + bcolors.RESET + ": Exit"
+   print bcolors.GREEN + "h" + bcolors.RESET + ": This help statement"
+   print bcolors.GREEN + "v" + bcolors.RESET + ": Change Verbosity (Currently {})".format( Verbosity )
    print
-   print "a: Add a Filter"
-   print "r: Remove a Filter (NOT IMPLIMENTED)"
-   print "e: Edit a Filter (NOT IMPLIMENTED)"
+   print bcolors.GREEN + "a" + bcolors.RESET + ": Add a Filter"
+   print bcolors.GREEN + "r" + bcolors.RESET + ": Remove a Filter"
+   print bcolors.GREEN+ "e" + bcolors.RESET + ": Edit a Filter"
    print
-   print "Enter: Search & Display"
+   print bcolors.GREEN + "Enter" + bcolors.RESET + ": Search & Display"
 
 def DisplayCurrentFilter( ):
    global Filter_Dict
@@ -142,14 +174,14 @@ def DisplayCurrentFilter( ):
 def ChangeVerbosity( ):
    global Verbosity
 
-   print "\n\n<<< Chang Verbosity >>>"
+   print "\n\n<<< \033[4mChang Verbosity\033[0m >>>"
    print "\nEnter new Verbosity Setting"
    print "Current Setting is {}".format( Verbosity )
-   print "0 => Name Only"
-   print "1 => Gameplay Details"
-   print "2 => Casting Details"
-   print "3 => Full Details"
-   print "4 => OMFG (Not yet supported)"
+   print bcolors.GREEN + "0" + bcolors.RESET + " => Name Only"
+   print bcolors.GREEN + "1" + bcolors.RESET + " => Gameplay Details"
+   print bcolors.GREEN + "2" + bcolors.RESET + " => Casting Details"
+   print bcolors.GREEN + "3" + bcolors.RESET + " => Full Details"
+   print bcolors.GREEN + "4" + bcolors.RESET + " => OMFG (Not yet supported)"
 
    try :
       Verbosity = input( "> " )
@@ -312,10 +344,10 @@ def AddFilter( ):
    # This loop is a bit clunky, but will help with new users a LOT
    filterType = ""
    while not len( filterType ) :
-      print "\n\n<<< Add Filter >>>"
+      print "\n\n<<< \033[4mAdd Filter\033[0m >>>"
       print "\nSelect csv Field to filter by"
-      print "!!! Enter 'help' for a help screen !!!"
-      print "Hit tab to see completions. Hitting tab without anything entered"
+      print "!!! Enter '" + bcolors.GREEN + "help" + bcolors.RESET + "' for a help screen !!!"
+      print "Hit " + bcolors.GREEN + "tab" + bcolors.RESET + " to see completions. Hitting tab without anything entered"
       print "  will show all avliable fields!"
       filterType = raw_input( "> " )
 
@@ -358,19 +390,26 @@ def AddFilter( ):
       readline.set_completer( completer )
       return False
    
+   print "\nYou have selected to filter based on '{}'".format( filterType )
    # We now offer any help we can
    if filterType in classFilters :
-      print "\nYou have selected to filter based on '{}'".format( filterType )
       print "  This is a CLASS filter. Items in the CSV will have one of two potential values."
       print "  If your class has that spell, the spell level will be given as a intiger"
       print "  If your class does not have the spell, 'null' will be listed in this field"
       print "  A good exampe for a regex that will find all spells from levels 0 to 2 would be [0-2]"
 
    if filterType in typeFilters :
-      print "\nYou have selected to filter based on '{}'".format( filterType )
       print "  This is a TYPE filter. If a given spell has that type of damage/effect/descriptor"
       print "  it will have a '1' in this field. IF it does not have that type, it will have a 0"
       print "  in that field. "
+
+   if filterType == 'school' or filterType == 'subschool' :
+      print "  This field lists the types of schools or sub-schools that are avliable. Filter"
+      print "  your search based off of these inbook names. "
+
+   if filterType == 'costly_components' :
+      print "  This field has a 1 for spells that have costly components."
+
 
    # Now lets get the regex from the user
    print "\nEnter value to filter by (valid regex)"
@@ -406,7 +445,9 @@ def RemoveFilter( ):
    print "Current Filters:"
    
    if not len( Filter_Dict ) :
-      print "  NONE! Sorry, we can't delete nothing!"
+      print "  Empty"
+      print "\nLooks like we don't have any filters to delete."
+      raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
       return
    
    
@@ -446,6 +487,9 @@ def RemoveFilter( ):
 
 
 def EditFilter( ):
+   print "\n\n<<< \033[4mEdit Filter\033[0m >>>"
+   print "This funcition hasn't been implimented yet! Sorry..."
+   raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
    pass
 
 def RunSearch( ):
@@ -476,7 +520,7 @@ def RunSearch( ):
       print "No Spells found that match"
    else:
       print "Found {} spells".format( len( tmpSpellList ) ) 
-   raw_input( "Press enter to continue..." )
+   raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
 
 def ClearScreen( ):
    try:
@@ -488,6 +532,7 @@ def ClearScreen( ):
 def Main( ):
    global Filter_Dict
    global spellDBFiletered
+   global Verbosity
 
    Filter_Dict = {}
 
@@ -496,38 +541,22 @@ def Main( ):
       columns = csvreader.fieldnames
       spellDB = []
       for i in csvreader:
-
-         # Attempt to convert the elements in the row to ints
-         # This caused regex to shit builder grade bricks, removed
-         # for x in i:
-         #    try:
-         #       i[x] = int( i[x] )
-         #       continue
-         #    except ValueError:
-         #       pass
-
-
          # Append the converted row to the spell DB
          spellDB.append( i )
 
 
    spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
 
-   from pprint import pprint
-
-   for i in range(3):
-      pprint( spellDBFiletered[i] )
 
    User_Selection_Raw = ""
-   PrintHelpString()
    while( True ):
       ClearScreen()
-      print "\n\n<<< Main Menu >>>"
-      print "h: help"
+      print "\n\n<<< \033[4mMain Menu\033[0m >>>"
+      PrintHelpString()
       print
       DisplayCurrentFilter()
       print
-      print "Enter Command, or press enter to search"
+      print "Enter Command, or press " + bcolors.GREEN + "enter" + bcolors.RESET + " to search"
       User_Selection_Raw = raw_input( "> " )
 
       # Determine if this was a control statement, respond and loop
@@ -537,6 +566,12 @@ def Main( ):
       if User_Selection_Raw == 'v' :
          ChangeVerbosity()
          continue
+      
+      tmp = re.search( 'v\s?(\d)', User_Selection_Raw, re.IGNORECASE )
+      if tmp :
+         Verbosity = int( tmp.group(1) )
+         continue
+   
 
       if User_Selection_Raw == 'a' :
          AddFilter()
@@ -550,16 +585,23 @@ def Main( ):
          EditFilter()
          continue
 
-      if User_Selection_Raw in [ 'h', '?' ] : 
+      if False and User_Selection_Raw in [ 'h', '?' ] : 
          PrintHelpString()
+         raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
          continue
 
-      if len( User_Selection_Raw ) == 0 :
-         RunSearch()
+      if len( User_Selection_Raw ) == 0 and len( Filter_Dict ) == 0:
+         print "Looks like we dont have anything to filter by yet!"
+         print "Try entering \033[4m.*\033[0m to list all spells!"
+         raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
          continue
 
-      print "WTF was that? I don't know what to do with '{}'".format( User_Selection_Raw )
-      print "You come back when you know what you're doing!"
+      # Looks like we didn't get anything. Assume that this is a name search, and run it! 
+      tmp = Filter_Dict.copy()
+      Filter_Dict['name'] = User_Selection_Raw
+      RunSearch()
+      Filter_Dict = tmp.copy()
+      continue
 
 
 
@@ -567,88 +609,88 @@ Main()
 
 
 """
+   Basic
+      name
+      school
+      subschool
+      descriptor
+      spell_level
+      casting_time
+      components
+      costly_components
+      range
+      area
+      effect
+      targets
+      duration
+      dismissible
+      shapeable
+      saving_throw
+      spell_resistence
+      description
+      description_formated
+      source
+      full_text
+   Components
+      verbal
+      somatic
+      material
+      focus
+      divine_focus
+   Class   
+      sor
+      wiz
+      cleric
+      druid
+      ranger
+      bard
+      paladin
+      alchemist
+      summoner
+      witch
+      inquisitor
+      oracle
+      antipaladin
+      magus
+      adept
+      deity
 
-   name
-   school
-   subschool
-   descriptor
-   spell_level
-   casting_time
-   components
-   costly_components
-   range
-   area
-   effect
-   targets
-   duration
-   dismissible
-   shapeable
-   saving_throw
-   spell_resistence
-   description
-   description_formated
-   source
-   full_text
-Components
-   verbal
-   somatic
-   material
-   focus
-   divine_focus
-Class   
-   sor
-   wiz
-   cleric
-   druid
-   ranger
-   bard
-   paladin
-   alchemist
-   summoner
-   witch
-   inquisitor
-   oracle
-   antipaladin
-   magus
-   adept
-   deity
+      SLA_Level
+      domain
+      short_description
+   Type
+      acid
+      air
+      chaotic
+      cold
+      curse
+      darkness
+      death
+      disease
+      earth
+      electricity
+      emotion
+      evil
+      fear
+      fire
+      force
+      good
+      language_dependent
+      lawful
+      light
+      mind_affecting
+      pain
+      poison
+      shadow
+      sonic
+      water
 
-   SLA_Level
-   domain
-   short_description
-Type
-   acid
-   air
-   chaotic
-   cold
-   curse
-   darkness
-   death
-   disease
-   earth
-   electricity
-   emotion
-   evil
-   fear
-   fire
-   force
-   good
-   language_dependent
-   lawful
-   light
-   mind_affecting
-   pain
-   poison
-   shadow
-   sonic
-   water
-
-   linktext
-   id
-   material_costs
-   bloodline
-   patron
-   mythic_text
-   augmented
-   mythic
+      linktext
+      id
+      material_costs
+      bloodline
+      patron
+      mythic_text
+      augmented
+      mythic
 """
