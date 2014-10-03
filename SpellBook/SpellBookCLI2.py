@@ -522,11 +522,13 @@ def RemoveFilter( ):
 
    # If we didn't return in the else of the for loop, we found the key
    # Delete it
-   print "Removed filter: {}: {}".format( 
+   print "Removed filter: \033[96m{}\033[m: \033[96m{}\033[m".format( 
       keyToDelete, 
       Filter_Dict[ keyToDelete ] 
    )
+   time.sleep(1)
    del Filter_Dict[ keyToDelete ]
+
 
 
 def EditFilter( ):
