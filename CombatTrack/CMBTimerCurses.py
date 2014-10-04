@@ -411,7 +411,9 @@ def RunEncounter( ):
          continue
 
       if sel in [ 'r' ] :
-         if ( GetInput( "\nARE YOU SURE???> ", str ) in [ "y", "Y" ] ):
+         stdscr.clear()
+         stdscr.addstr( "You are about to reset all of the timers for this combat" )
+         if ( GetInput( "\nARE YOU SURE???> ", str ) == 'yes' ):
             for i in GLOB_PLAYERS:
                i.Clear()
          continue
