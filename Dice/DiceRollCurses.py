@@ -11,7 +11,7 @@ def Main( window ):
       sides = 20
       
       pause = 0.0
-      total = uniform( 1.0, 2.5 )
+      total = uniform( 0.5, 2.0 )
       while pause < total :
          window.clear()
          roll = randint( 1, sides )
@@ -21,11 +21,15 @@ def Main( window ):
          sleep( pause )
       
 
-      window.addstr( y/2, x/2,  "{:>2}".format( roll ), curses.A_BLINK )
+      window.addstr( y/2, x/2,  '{:>2}'.format( roll )  )
       window.addstr( y/2+1, x/2,  "**" )
       window.addstr( y/2-1, x/2,  "**" )
       window.refresh()
       if window.getkey() == 'x' :
          break
-
-curses.wrapper( Main )
+try:
+   curses.wrapper( Main )
+finally:
+   curses.nocbreak()
+   curses.echo()
+   curses.endwin()
