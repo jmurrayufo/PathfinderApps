@@ -18,7 +18,7 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 # 1: Basic Spell Info
 # 2: Castable Spell Info
 # 3: Full Spell Info
-Verbosity = 1
+Verbosity = 2
 
 global completionList
 completionList = []
@@ -97,6 +97,7 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       # Not all spells have resistance info. 
       if( inputEntry['spell_resistence'] ):
          print outputStr%('Resistance', inputEntry['spell_resistence'].capitalize( ) )
+   if detailLevel >= 1 :
 
       # Print school, but NOT a new line. This allows us to add a sub school if it exists!
       print outputStr%('School',inputEntry['school'].capitalize( ) ),
@@ -122,7 +123,6 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       tmp = SanatizeString( tmp )
       print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )
 
-   
    elif( detailLevel >= 3 ):
       tmp = outputStr%("Description",inputEntry['description_formated'])
       tmp = AdvSanatizeString( tmp )
@@ -138,6 +138,7 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       
       print outputStr%("Link",inputEntry['linktext'])
 
+   if detailLevel > 1 :
       print outputStr%("Source",inputEntry['source'])
 
 def completer(text, state):
@@ -593,6 +594,8 @@ def Main( ):
          spellDB.append( i )
 
    spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
+
+   spellDBFiletered = spellDB
 
    User_Selection_Raw = ""
    while( True ):
