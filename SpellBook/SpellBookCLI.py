@@ -102,23 +102,26 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       # Print school, but NOT a new line. This allows us to add a sub school if it exists!
       print outputStr%('School',inputEntry['school'].capitalize( ) ),
       
-      if( inputEntry['subschool'] ):
+      if inputEntry['subschool'] :
          print "( %s )"%( inputEntry['subschool'] )
       else:
          print
    
    # Not all spells have targets, dont print if we lack that data
-   if( inputEntry['targets'] ):
+   if inputEntry['targets'] :
       # apprently some of these are very long...
       tmp = outputStr%('Targets',inputEntry['targets'].capitalize( ) ) 
       print '\n'.join( textwrap.TextWrapper(subsequent_indent='                 ').wrap(tmp) )  
 
-   # Not all spells have targets, dont print if we lack that data
-   if( inputEntry['range'] ):
+   # Not all spells have range, dont print if we lack that data
+   if inputEntry['range'] :
       print outputStr%('Range',inputEntry['range'].capitalize( ) )
 
+   if inputEntry['area'] :
+      print outputStr%('Area',inputEntry['area'].capitalize( ) )
 
-   if( detailLevel > 0 and detailLevel < 3 ):
+
+   if detailLevel > 0 and detailLevel < 3 :
       tmp = outputStr%('Description',inputEntry['short_description'])
       tmp = SanatizeString( tmp )
       print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )
