@@ -22,6 +22,10 @@ def Main( window ):
    curses.use_default_colors()
    curses.init_pair(1,curses.COLOR_RED,-1)
 
+   # Allow for off screen scrolling (Ugly, but saves from crash!)
+   window.scrollok(1)
+   window.idlok(1)
+
    while ( True ):
       maxX,maxY = window.getmaxyx()
       PlayerList = []

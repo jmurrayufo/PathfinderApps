@@ -135,8 +135,10 @@ def Main( window ):
 
    GLOB_PLAYERS = []
    atexit.register( Cleanup )
-
-
+   
+   # Allow for off screen scrolling (Ugly, but saves from crash!) 
+   stdscr.scrollok(1)
+   stdscr.idlok(1)
    
    if( os.path.exists('.playerdata.json') ):
       EmergencyReload()
