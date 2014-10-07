@@ -2,11 +2,12 @@
 
 import csv 
 import random
+import numpy as np
 
 sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
    'APG', 'PFRPG Core', ]
 
-playerLevel = 3
+playerLevel = 10
 
 townCrapFactor = 1.0
 
@@ -30,9 +31,15 @@ with open( 'spell_full.csv' ) as fp:
    spellDB = []
    for i in csvreader:
       # Append the converted row to the spell DB
+      if i['source'] in [ 'PFRPG Core', 'APG' ] :
+         i['weight'] = 2
+      elif i['source'] in sourceFilterList :
+         i['weight'] = 1
+      else:
+         i['weight'] = 0.05
       spellDB.append( i )
 
-spellDBFiltered = [ i for i in spellDB if ( i[ 'source' ] in sourceFilterList and i[ 'wiz' ] != 'NULL' ) ]
+spellDBFiltered = [ i for i in spellDB if ( i[ 'wiz' ] != 'NULL' ) ]
 
 for idx,numberOfSpells in enumerate( levelAmounts ) :
    if numberOfSpells == 0:
@@ -40,11 +47,15 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
    idx += 1
    print "Spells at Level {} => {}".format( idx, numberOfSpells  )
    subSpellDBFiltered = [ x for x in spellDBFiltered if x['wiz'] == str(idx)]
-   spells = sorted( random.sample( subSpellDBFiltered, numberOfSpells ), key = lambda x: x['name'] )
+   # spells = sorted( random.sample( subSpellDBFiltered, numberOfSpells ), key = lambda x: x['name'] )
+   p = np.array( [ x['weight'] for x in subSpellDBFiltered ] )
+   p /= sum( p )
+   spells = sorted( np.random.choice( subSpellDBFiltered, numberOfSpells, False, p=p ), key=lambda x: x['name'] )
    for spell in spells :
-      print "   Name: {}".format( spell['name'] )
-      print "      Short Description: {}".format( spell['short_description'] )
-      print "      Level: {}".format( spell['wiz'] )
+      print "   Name: {name}".format( **spell )
+      print "      Short Description: {short_description}".format( **spell )
+      print "      Level: {wiz}".format( **spell )
+      print "      Source: {source}".format( **spell )
       print
 
 print "Total Spells: {}".format( sum( levelAmounts ) )
