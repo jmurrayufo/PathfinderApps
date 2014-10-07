@@ -18,7 +18,7 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 # 1: Basic Spell Info
 # 2: Castable Spell Info
 # 3: Full Spell Info
-Verbosity = 2
+Verbosity = 3
 
 global completionList
 completionList = []
@@ -596,8 +596,8 @@ def Main( ):
          # Append the converted row to the spell DB
          spellDB.append( i )
 
-   spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
-
+   # spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
+   # Currently using the FULL spell database, no filtering
    spellDBFiletered = spellDB
 
    User_Selection_Raw = ""
