@@ -33,15 +33,24 @@ expectedSpellsPerLevel = [
 ]
 
 levelAmounts = [
-   random.randint( expectedSpellsPerLevel[0]/minSpellsRatio, expectedSpellsPerLevel[0] ), # Level 1 (max 112)
-   random.randint( expectedSpellsPerLevel[1]/minSpellsRatio, expectedSpellsPerLevel[1] ), # Level 2 (max 135)
-   random.randint( expectedSpellsPerLevel[2]/minSpellsRatio, expectedSpellsPerLevel[2] ), # Level 3 (max 117)
-   random.randint( expectedSpellsPerLevel[3]/minSpellsRatio, expectedSpellsPerLevel[3] ), # Level 4 (max 100)
-   random.randint( expectedSpellsPerLevel[4]/minSpellsRatio, expectedSpellsPerLevel[4] ), # Level 5 (max 89)
-   random.randint( expectedSpellsPerLevel[5]/minSpellsRatio, expectedSpellsPerLevel[5] ), # Level 6 (max 74)
-   random.randint( expectedSpellsPerLevel[6]/minSpellsRatio, expectedSpellsPerLevel[6] ), # Level 7 (max 66)
-   random.randint( expectedSpellsPerLevel[7]/minSpellsRatio, expectedSpellsPerLevel[7] ), # Level 8 (max 47)
-   random.randint( expectedSpellsPerLevel[8]/minSpellsRatio, expectedSpellsPerLevel[8] ), # Level 8 (max 43)
+   random.randint( expectedSpellsPerLevel[0]/minSpellsRatio, 
+      expectedSpellsPerLevel[0] ), # Level 1 (max 112)
+   random.randint( expectedSpellsPerLevel[1]/minSpellsRatio, 
+      expectedSpellsPerLevel[1] ), # Level 2 (max 135)
+   random.randint( expectedSpellsPerLevel[2]/minSpellsRatio, 
+      expectedSpellsPerLevel[2] ), # Level 3 (max 117)
+   random.randint( expectedSpellsPerLevel[3]/minSpellsRatio, 
+      expectedSpellsPerLevel[3] ), # Level 4 (max 100)
+   random.randint( expectedSpellsPerLevel[4]/minSpellsRatio, 
+      expectedSpellsPerLevel[4] ), # Level 5 (max 89)
+   random.randint( expectedSpellsPerLevel[5]/minSpellsRatio, 
+      expectedSpellsPerLevel[5] ), # Level 6 (max 74)
+   random.randint( expectedSpellsPerLevel[6]/minSpellsRatio, 
+      expectedSpellsPerLevel[6] ), # Level 7 (max 66)
+   random.randint( expectedSpellsPerLevel[7]/minSpellsRatio, 
+      expectedSpellsPerLevel[7] ), # Level 8 (max 47)
+   random.randint( expectedSpellsPerLevel[8]/minSpellsRatio, 
+      expectedSpellsPerLevel[8] ), # Level 8 (max 43)
 ]
 
 spellCopyCosts = [
@@ -63,7 +72,7 @@ with open( 'spell_full.csv' ) as fp:
    columns = csvreader.fieldnames
    spellDB = []
    for i in csvreader:
-      # Append the converted row to the spell DB
+      
       if i['name'] in johnsSpellRequests :
          i['weight'] = 4
       elif i['source'] in [ 'PFRPG Core' ] :
@@ -77,14 +86,13 @@ with open( 'spell_full.csv' ) as fp:
       try:
          # Offset by one to get correct index!
          i['copy_cost'] = spellCopyCosts[ int( i['wiz'] ) - 1 ]
-         if i['source'] in [ 'APG', 'PFRPG Core', ] :
-            pass
-         elif i['source'] in sourceFilterList :
-            pass
-         else:
+         
+         if i['source'] not in sourceFilterList :
             i['copy_cost'] *= 3
       except (ValueError) :
          continue
+
+      # Append the converted row to the spell DB
       spellDB.append( i )
 
 # This check is now done in the open block above!
@@ -103,17 +111,26 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
    idx += 1
    print "Spells at Level {} => {}".format( idx, numberOfSpells  )
    subSpellDBFiltered = [ x for x in spellDBFiltered if x['wiz'] == str(idx)]
-   # spells = sorted( random.sample( subSpellDBFiltered, numberOfSpells ), key = lambda x: x['name'] )
+
    p = np.array( [ x['weight'] for x in subSpellDBFiltered ] )
    # p /= sum( p ) doesn't work, even with a forced float value? Not sure why....
    p = p / float( sum( p ) )
-   spells = sorted( np.random.choice( subSpellDBFiltered, numberOfSpells, False, p=p ), key=lambda x: x['name'] )
+   spells = sorted( 
+      np.random.choice( 
+         subSpellDBFiltered, 
+         numberOfSpells, 
+         False, 
+         p=p 
+         ), 
+      key=lambda x: x['name'] 
+      )
    for spell in spells :
       print "   Name: {name}".format( **spell )
-      spellDes = textwrap.wrap( text="      Details: {short_description}".format( **spell ),
-                                width=columns,
-                                subsequent_indent="                  "
-                               )
+      spellDes = textwrap.wrap( 
+         text="      Details: {short_description}".format( **spell ),
+         width=columns,
+         subsequent_indent="                  "
+         )
       print "\n".join( spellDes )
       print "      Source: {source}".format( **spell )
       print "      Copy Cost: {copy_cost} gp".format( **spell )
