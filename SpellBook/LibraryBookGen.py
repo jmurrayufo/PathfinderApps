@@ -21,36 +21,27 @@ johnsSpellRequests = ['Magic Missile']
 minSpellsRatio = 10
 
 expectedSpellsPerLevel = [
-   int( max(0, (playerLevel -  0) * spellPerLevel ) ), # Level 1 (max 112)
-   int( max(0, (playerLevel -  2) * spellPerLevel ) ), # Level 2 (max 135)
-   int( max(0, (playerLevel -  4) * spellPerLevel ) ), # Level 3 (max 117)
-   int( max(0, (playerLevel -  6) * spellPerLevel ) ), # Level 4 (max 100)
-   int( max(0, (playerLevel -  8) * spellPerLevel ) ), # Level 5 (max 89)
-   int( max(0, (playerLevel - 10) * spellPerLevel ) ), # Level 6 (max 74)
-   int( max(0, (playerLevel - 12) * spellPerLevel ) ), # Level 7 (max 66)
-   int( max(0, (playerLevel - 14) * spellPerLevel ) ), # Level 8 (max 47)
-   int( max(0, (playerLevel - 16) * spellPerLevel ) ), # Level 9 (max 43)
+   min( 30, int( max( 0, ( playerLevel -  0 ) * spellPerLevel ) ) ), # Level 1 (max 112)
+   min( 30, int( max( 0, ( playerLevel -  2 ) * spellPerLevel ) ) ), # Level 2 (max 135)
+   min( 30, int( max( 0, ( playerLevel -  4 ) * spellPerLevel ) ) ), # Level 3 (max 117)
+   min( 30, int( max( 0, ( playerLevel -  6 ) * spellPerLevel ) ) ), # Level 4 (max 100)
+   min( 30, int( max( 0, ( playerLevel -  8 ) * spellPerLevel ) ) ), # Level 5 (max 89)
+   min( 30, int( max( 0, ( playerLevel - 10 ) * spellPerLevel ) ) ), # Level 6 (max 74)
+   min( 30, int( max( 0, ( playerLevel - 12 ) * spellPerLevel ) ) ), # Level 7 (max 66)
+   min( 30, int( max( 0, ( playerLevel - 14 ) * spellPerLevel ) ) ), # Level 8 (max 47)
+   min( 30, int( max( 0, ( playerLevel - 16 ) * spellPerLevel ) ) ), # Level 9 (max 43)
 ]
 
 levelAmounts = [
-   random.randint( expectedSpellsPerLevel[0]/minSpellsRatio, 
-      expectedSpellsPerLevel[0] ), # Level 1 (max 112)
-   random.randint( expectedSpellsPerLevel[1]/minSpellsRatio, 
-      expectedSpellsPerLevel[1] ), # Level 2 (max 135)
-   random.randint( expectedSpellsPerLevel[2]/minSpellsRatio, 
-      expectedSpellsPerLevel[2] ), # Level 3 (max 117)
-   random.randint( expectedSpellsPerLevel[3]/minSpellsRatio, 
-      expectedSpellsPerLevel[3] ), # Level 4 (max 100)
-   random.randint( expectedSpellsPerLevel[4]/minSpellsRatio, 
-      expectedSpellsPerLevel[4] ), # Level 5 (max 89)
-   random.randint( expectedSpellsPerLevel[5]/minSpellsRatio, 
-      expectedSpellsPerLevel[5] ), # Level 6 (max 74)
-   random.randint( expectedSpellsPerLevel[6]/minSpellsRatio, 
-      expectedSpellsPerLevel[6] ), # Level 7 (max 66)
-   random.randint( expectedSpellsPerLevel[7]/minSpellsRatio, 
-      expectedSpellsPerLevel[7] ), # Level 8 (max 47)
-   random.randint( expectedSpellsPerLevel[8]/minSpellsRatio, 
-      expectedSpellsPerLevel[8] ), # Level 8 (max 43)
+   random.randint( 0, expectedSpellsPerLevel[0] ), # Level 1 (max 112)
+   random.randint( 0, expectedSpellsPerLevel[1] ), # Level 2 (max 135)
+   random.randint( 0, expectedSpellsPerLevel[2] ), # Level 3 (max 117)
+   random.randint( 0, expectedSpellsPerLevel[3] ), # Level 4 (max 100)
+   random.randint( 0, expectedSpellsPerLevel[4] ), # Level 5 (max 89)
+   random.randint( 0, expectedSpellsPerLevel[5] ), # Level 6 (max 74)
+   random.randint( 0, expectedSpellsPerLevel[6] ), # Level 7 (max 66)
+   random.randint( 0, expectedSpellsPerLevel[7] ), # Level 8 (max 47)
+   random.randint( 0, expectedSpellsPerLevel[8] ), # Level 8 (max 43)
 ]
 
 spellCopyCosts = [
@@ -109,7 +100,7 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
    if numberOfSpells == 0:
       continue
    idx += 1
-   print "Spells at Level {} => {}".format( idx, numberOfSpells  )
+   print "\nSpells at Level {} => {}".format( idx, numberOfSpells  )
    subSpellDBFiltered = [ x for x in spellDBFiltered if x['wiz'] == str(idx)]
 
    p = np.array( [ x['weight'] for x in subSpellDBFiltered ] )
