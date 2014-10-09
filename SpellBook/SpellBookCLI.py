@@ -7,7 +7,7 @@ import sre_constants
 import textwrap
 import time
 
-# Options
+# <<< Options >>>
 
 # Source Filter List
 sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
@@ -20,6 +20,7 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 # 3: Full Spell Info
 Verbosity = 3
 
+# Global veriable to use in tab completion function
 global completionList
 completionList = []
 
@@ -145,6 +146,9 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       print outputStr%("Source",inputEntry['source'])
 
 def completer(text, state):
+   """
+   Function handed to the read line library to help complete potential words
+   """
    global completionList
    options = [i for i in completionList if i.startswith(text)]
    if state < len(options):
@@ -153,11 +157,17 @@ def completer(text, state):
       return None 
 
 def SanatizeString( Input_String ):
+   """
+   Force string to ONLY have legal ASCII characters in it
+   """
    for i in range( 128, 256 ):
       Input_String = Input_String.replace( chr(i) ,"")
    return Input_String
 
 def AdvSanatizeString( Input_String ):
+   """
+   Remove known simple formating escapes, and add newlines to replace some of them
+   """
    Input_String = re.sub( '</?i>', '', Input_String )
    Input_String = re.sub( '</p>', "\n\n", Input_String )
    Input_String = re.sub( '<p>', '', Input_String )
@@ -539,10 +549,75 @@ def RemoveFilter( ):
 
 
 def EditFilter( ):
-   print "\n\n<<< \033[4mEdit Filter\033[0m >>>"
-   print "This funcition hasn't been implimented yet! Sorry..."
-   raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
-   pass
+   global Filter_Dict
+   print "\n\n<<< Edit Filter >>>"
+   print "Blank line to return"
+   print "Enter index of item to delete"
+   print "Current Filters:"
+   
+   if not len( Filter_Dict ) :
+      print "  Empty"
+      print "\nLooks like we don't have any filters to edit."
+      raw_input( "Press " + bcolors.GREEN + "enter" + bcolors.RESET + " to continue..." )
+      return
+   
+   
+   for idx,val in enumerate( Filter_Dict ) :
+      print "  [" + bcolors.GREEN + "{}".format( idx + 1 ) + bcolors.RESET + "] {}: {}".format( val, Filter_Dict[ val ] )
+
+
+   try :
+      user_selection = input( "> " )
+   except ( ValueError, NameError ) :
+      print "Invalid int, returning"
+      return
+   except ( SyntaxError ) :
+      print "No changes"
+      return
+
+   # Shift to corrent indexing (We added one to display to users)
+   user_selection -= 1 
+
+   # Loop through to try to find the index to edit
+   for idx,val in enumerate( Filter_Dict ) :
+      if idx == user_selection :
+         keyToEdit = val
+         break
+   # If we didn't break, we didn't find that index. Tell the user and return
+   else:
+      print "Index invalid, returning to Main Menu"
+      return
+
+   # If we didn't return in the else of the for loop, we found the key
+   # Edit It
+   print "Editing:: \033[96m{}\033[m: \033[96m{}\033[m".format( 
+      keyToEdit, 
+      Filter_Dict[ keyToEdit ] 
+   )
+   
+   # Now lets get the regex from the user
+   print "\nEnter new value to filter by (valid regex)"
+   filterValue = raw_input( "> " )
+
+   # Empty filters make me Cry!
+   if len( filterValue ) == 0 :
+      print "Error: We need SOMETHING to filter by!"
+      return
+
+   # Run a test compile of the regex so we know we got something usable later
+   try:
+      re.compile( filterValue )
+   # Tell the user that they don't know how to regex, then return to main menu
+   except sre_constants.error, e:
+      print "Sorry, but '\033[96m{}\033[m' isn't a valid regex in python".format( filterValue )
+      print "Error given: {}".format( e )
+      completionList = []
+      readline.set_completer( completer )
+      return False
+   
+   Filter_Dict[ keyToEdit ] = filterValue
+   
+   
 
 def RunSearch( ):
    global spellDBFiletered
