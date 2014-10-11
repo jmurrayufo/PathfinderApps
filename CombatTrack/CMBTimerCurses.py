@@ -481,10 +481,16 @@ def RunEncounter( ):
          continue
 
       if ( sel > 0 and sel <= len( GLOB_PLAYERS ) and not GLOB_PLAYERS[ sel - 1 ].Active ):
-         for i in GLOB_PLAYERS:
+         isAPlayerActive = False
+         for i in GLOB_PLAYERS :
+            if i.Active :
+               isAPlayerActive = True
+
+         for i in GLOB_PLAYERS :
             i.Update()
+
          # Adjust for index and display, begin that turn
-         GLOB_PLAYERS[ sel - 1 ].BeginTurn(True)
+         GLOB_PLAYERS[ sel - 1 ].BeginTurn( isAPlayerActive )
       elif ( sel == 0 ):
          for i in GLOB_PLAYERS:
             i.Update()
