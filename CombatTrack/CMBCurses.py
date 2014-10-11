@@ -17,7 +17,6 @@ def Main( window ):
    # rate can be adjusted as needed.
 
    # This set seems to be needed to get color working?
-   # TODO: Isolate what is needed here. Remove uneeded and document it
    curses.start_color()   
    curses.use_default_colors()
    curses.init_pair(1,curses.COLOR_RED,-1)
