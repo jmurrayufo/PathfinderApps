@@ -86,9 +86,12 @@ class Player( object ):
       else:
          return self.TimeTaken
 
-   def BeginTurn( self ):
+   def BeginTurn( self, soft=False  ):
       """
       Begins turn for player. 
+
+         soft: If set (default False) the beginTurn will only set the player
+            active and not do any of the normal turn keeping. 
 
       Will do the following:
          - Update any Status Effects, including deleting any with 0 turns left!
@@ -102,25 +105,28 @@ class Player( object ):
 
       assert( self.Active == False ),"A player tried to begin a turn \
       even through they were already active..."
-
-      keysToDelete = []
-      for key in self.Status :
-         # If this key is already zero, we are done. Delete it!
-         if self.Status[key] == 0 :
-            keysToDelete.append( key )
-            continue
-         # We dont want to deal with -1 keys, as they are indeffinate. 
-         if self.Status[key] > 0 :
-            self.Status[key] -= 1
       
-      # We can delete this way, as the keys are not index specifc, and 
-      #  keysToDelete wont change!
-      for key in keysToDelete :
-         del self.Status[key]
+
+      if not soft :
+         keysToDelete = []
+         for key in self.Status :
+            # If this key is already zero, we are done. Delete it!
+            if self.Status[key] == 0 :
+               keysToDelete.append( key )
+               continue
+            # We dont want to deal with -1 keys, as they are indeffinate. 
+            if self.Status[key] > 0 :
+               self.Status[key] -= 1
+         
+         # We can delete this way, as the keys are not index specifc, and 
+         #  keysToDelete wont change!
+         for key in keysToDelete :
+            del self.Status[key]
 
 
       self.Active = True
-      self.Turns += 1
+      if not soft:
+         self.Turns += 1
       self.TurnStart = datetime.now()
 
    def AddStatus( self, key, turns ) :

@@ -1,13 +1,15 @@
 #!/usr/bin/env python
-from datetime import datetime,timedelta
-import os
-import time
-import json
-from json import JSONEncoder
-import atexit
 from common import Player
 from curses.wrapper import wrapper
+from datetime import datetime,timedelta
+from json import JSONEncoder
+import atexit
 import curses
+import json
+import os
+import textwrap
+import time
+
 
 # TODO: This program does a poor job of screen overrun protection. Find and fix
 # 
@@ -364,22 +366,27 @@ def SaveGame( ):
 
 def RunEncounter( ):
    def PrintHelp( ):
-      stdscr.addstr( "<< Options >>\n" )
-      stdscr.addstr( "#: Select Active Player\n" )
-      stdscr.addstr( "0: No Active Player, pause game\n" )
-      stdscr.addstr( "n: Next Player\n" )
-      stdscr.addstr( "\n" )
-      stdscr.addstr( "s: Status Edit Menu\n" )
-      stdscr.addstr( "a: Add Player\n" )
-      stdscr.addstr( "d: Delete Player\n" )
-      stdscr.addstr( "e: Edit Player\n" )
-      stdscr.addstr( "\n" )
-      stdscr.addstr( "b: Blast In Players\n" )
-      stdscr.addstr( "i: Blast In Initiatives\n" )
-      stdscr.addstr( "\n" )
-      stdscr.addstr( "r: Reset Encounter\n" )
-      stdscr.addstr( "x: Return to Main Menu\n" )
 
+      optionsStr =   textwrap.dedent("""\
+                     << Options >>
+                     #: Select Active Player
+                     0: No Active Player, pause game
+                     n: Next Player
+
+                     s: Edit status of Active Player
+                     a: Add Player
+                     d: Delete Player
+                     e: Edit Player
+
+                     b: Blast In Players
+                     i: Blast In Initiatives
+
+                     r: Reset Encounter
+                     x: Return to Main Menu
+                     """)
+
+      stdscr.addstr( optionsStr )
+      return
 
    global GLOB_PLAYERS
 
@@ -432,6 +439,22 @@ def RunEncounter( ):
          StatusMenu()
          continue
 
+      if sel in [ 't' ] :
+         # Find the active player if it exists
+         activeIdx = None
+         for idx,val in enumerate( GLOB_PLAYERS ):
+            if ( val.Active ):
+               activeIdx = idx
+               break
+
+         # We didn't find a active player...
+         if ( activeIdx == None ):
+            continue
+
+         GLOB_PLAYERS[ activeIdx ].Turns += 1
+         continue
+
+
       # Next Player
       if sel in ['n',' '] :
          # Find Active Player
@@ -461,49 +484,34 @@ def RunEncounter( ):
          for i in GLOB_PLAYERS:
             i.Update()
          # Adjust for index and display, begin that turn
-         GLOB_PLAYERS[ sel - 1 ].BeginTurn()
+         GLOB_PLAYERS[ sel - 1 ].BeginTurn(True)
       elif ( sel == 0 ):
          for i in GLOB_PLAYERS:
             i.Update()
 
 
 def StatusMenu( ):
+   """
+   TODO: Remove this function. We will now edit the status of the ACTIVE player
+      when asked. 
+   """
+   global GLOB_PLAYERS
 
-   while( 1 ):
-      stdscr.clear()
-      stdscr.addstr( "Select Player to exit the status of.\n" )
-      stdscr.addstr( "Blank line to return\n" )
-      ListPlayers()
-      stdscr.addstr( ">> " )
-      stdscr.refresh()
-      tmp = stdscr.getkey()
+   for idx,val in enumerate( GLOB_PLAYERS ):
+      if ( val.Active ):
+         break
+   else:
+      # No active player? Return
+      return
 
-      if tmp in ['\n','x'] :
-         return
+   StatusSubMenu( idx )
 
-      try:
-         tmp = int( tmp )
-      except ValueError:
-         continue
-      
-      if tmp > 0 and tmp <= len( GLOB_PLAYERS ) :
-         StatusSubMenu( tmp - 1 )
-         continue
-      else:
-         stdscr.addstr( "Invalid player slection!" )
-         stdscr.refresh()
-         curses.napms(1000)
-   pass
 
 def StatusSubMenu( sel ):
    while True :
       stdscr.clear()
       stdscr.addstr( "Editing Status\n" )
-      stdscr.addstr( "Player: " )
-      stdscr.addstr( "{Name} ".format( **GLOB_PLAYERS[sel].GetStrDict() ), curses.A_BOLD )
-      stdscr.addstr( "[{Init}]\n".format( **GLOB_PLAYERS[sel].GetStrDict() ) )
-      
-      stdscr.addstr( "Current Status:\n" )
+      stdscr.addstr( "Select a Status:\n" )
       for i in GLOB_PLAYERS[sel].Status : 
          stdscr.addstr( "{} [{}]\n".format( i, GLOB_PLAYERS[sel].Status[i] ) )
       
