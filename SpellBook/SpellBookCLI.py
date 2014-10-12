@@ -184,7 +184,7 @@ def PrintHelpString( ):
    print
    print bcolors.GREEN + "a" + bcolors.RESET + ": Add a Filter"
    print bcolors.GREEN + "r" + bcolors.RESET + ": Remove a Filter"
-   print bcolors.GREEN+ "e" + bcolors.RESET + ": Edit a Filter"
+   print bcolors.GREEN + "e" + bcolors.RESET + ": Edit a Filter"
    print
    print bcolors.GREEN + "Enter" + bcolors.RESET + ": Search & Display"
 
