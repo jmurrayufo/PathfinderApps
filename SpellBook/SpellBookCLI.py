@@ -118,6 +118,9 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    if inputEntry['range'] :
       print outputStr%('Range',inputEntry['range'].capitalize( ) )
 
+   if inputEntry['effect'] :
+      print outputStr%('Effect',inputEntry['effect'].capitalize( ) )
+
    if inputEntry['area'] :
       print outputStr%('Area',inputEntry['area'].capitalize( ) )
 
