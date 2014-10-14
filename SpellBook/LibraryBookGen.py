@@ -8,17 +8,14 @@ import textwrap
 sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
    'APG', 'PFRPG Core', ]
 
-playerLevel = 3
+playerLevel = 4
 
-townCrapFactor = 1.0
+townCrapFactor = 0.8
 
 spellPerLevel =  5
 spellPerLevel *= townCrapFactor 
 
-johnsSpellRequests = ['Magic Missile']
-
-# This is the devisor of the lower bounds of how many spells to have
-minSpellsRatio = 10
+johnsSpellRequests = []
 
 expectedSpellsPerLevel = [
    min( 30, int( max( 0, ( playerLevel -  0 ) * spellPerLevel ) ) ), # Level 1 (max 112)
@@ -44,6 +41,11 @@ levelAmounts = [
    random.randint( 0, expectedSpellsPerLevel[8] ), # Level 8 (max 43)
 ]
 
+# Force each level to have at LEAST the minimum number of spells
+for idx,val in enumerate( levelAmounts ) :
+   if val and val < spellPerLevel :
+      levelAmounts[idx] = spellPerLevel
+
 spellCopyCosts = [
      7.5,
     15,
@@ -56,7 +58,6 @@ spellCopyCosts = [
    960,
   1215,
 ]
-
 
 with open( 'spell_full.csv' ) as fp:
    csvreader = csv.DictReader( fp )
@@ -100,7 +101,7 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
    if numberOfSpells == 0:
       continue
    idx += 1
-   print "\nSpells at Level {} => {}".format( idx, numberOfSpells  )
+   print "\n== Spells at Level {} => {} ==".format( idx, numberOfSpells  )
    subSpellDBFiltered = [ x for x in spellDBFiltered if x['wiz'] == str(idx)]
 
    p = np.array( [ x['weight'] for x in subSpellDBFiltered ] )
@@ -117,11 +118,19 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
       )
    for spell in spells :
       print "   Name: {name}".format( **spell )
-      spellDes = textwrap.wrap( 
-         text="      Details: {short_description}".format( **spell ),
-         width=columns,
-         subsequent_indent="                  "
-         )
+      if len( spell['short_description'] ) :
+         spellDes = textwrap.wrap( 
+            text="      Details: {short_description}".format( **spell ),
+            width=columns,
+            subsequent_indent="                  "
+            )
+      else:
+         spellDes = textwrap.wrap( 
+            text="      Details: {description}".format( **spell ),
+            width=columns,
+            subsequent_indent="                  "
+            )
+
       print "\n".join( spellDes )
       print "      Source: {source}".format( **spell )
       print "      Copy Cost: {copy_cost} gp".format( **spell )
