@@ -665,14 +665,25 @@ def Main( ):
    global Verbosity
 
    Filter_Dict = {}
+   try:
+      with open( 'spell_full.csv' ) as fp:
+         csvreader = csv.DictReader( fp )
+         columns = csvreader.fieldnames
+         spellDB = []
+         for i in csvreader:
+            # Append the converted row to the spell DB
+            spellDB.append( i )
+   except (IOError) :
+      # If we had an IOError, we are probably running from the wrong directory. 
+      #  Try the one my file is in
+      with open( os.path.dirname(os.path.realpath(__file__)) + '/spell_full.csv' ) as fp:
+         csvreader = csv.DictReader( fp )
+         columns = csvreader.fieldnames
+         spellDB = []
+         for i in csvreader:
+            # Append the converted row to the spell DB
+            spellDB.append( i )
 
-   with open( 'spell_full.csv' ) as fp:
-      csvreader = csv.DictReader( fp )
-      columns = csvreader.fieldnames
-      spellDB = []
-      for i in csvreader:
-         # Append the converted row to the spell DB
-         spellDB.append( i )
 
    # spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
    # Currently using the FULL spell database, no filtering
