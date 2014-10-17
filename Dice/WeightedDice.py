@@ -6,7 +6,6 @@ import time
 sided = 20
 
 p = np.ones(sided,dtype=float)
-p[19] = 5000
 p /= sum( p )
 
 count = np.zeros(sided,dtype=int)
@@ -29,7 +28,7 @@ try:
       p[side] *= 0.5
       
       p /= sum( p ) 
-      time.sleep(0.05)
+      time.sleep(0.5)
       
 except (KeyboardInterrupt) :
    pass
