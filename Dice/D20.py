@@ -35,7 +35,6 @@ def GetRandomSide():
       side = choice( tmplist )
    return side
 
-"""
 print "Begin"
 speed = 10
 side = choice( mapping.keys() )
@@ -54,7 +53,7 @@ while speed > 0.3 :
 print "Almost got:",mapping[side]
 """
 results = []
-for i in range( 1000000 ):
+for i in range( 1000 ):
    results.append( GetRandomSide() )
 
 for i in range(1,21):
@@ -62,3 +61,5 @@ for i in range(1,21):
 
 print np.std( results )
 print np.mean( results )
+
+"""
