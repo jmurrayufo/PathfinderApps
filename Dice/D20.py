@@ -36,17 +36,17 @@ def GetRandomSide():
    return side
 
 print "Begin"
-speed = 10
+speed = 15
 side = choice( mapping.keys() )
 last = side
-while speed > 0.3 :
+while speed > 0.5 :
    tmplist = [x for x in mapping[side] if x != last]
    last = side
    side = choice( tmplist )
 
    print "\n{:2}".format( side )
    time.sleep(1.0/speed)
-   speed -= random()*2
+   speed -= random() * 5
 
 
 
