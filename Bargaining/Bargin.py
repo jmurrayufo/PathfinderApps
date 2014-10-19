@@ -2,13 +2,13 @@
 
 import Funcs
 import numpy as np
+import os
 
 
 class Object(object):
    pass
 
 Seller = Object()
-Seller.Name = "Jen"
 
 Buyer = Object()
 Buyer.Name = "NPCBob"
@@ -70,6 +70,16 @@ Step 1: Seller Sets the Asking Price
 The seller suggests a price to the buyer. If the Asking Price is more than 150%% of the item's actual value, the buyer simply refuses to bargain. The lowest amount the seller will accept is 75%% of this Asking Price.
 """
 
+os.system('clear')
+
+print "Welcome to the Bargaining Simulator!"
+print "   Please note that this application is in TESTING at this time"
+print "   Many options are not easy to \"undo\" and can result in odd results!"
+
+print "Whos is trying to Bargain today?"
+Seller.Name = raw_input("> ")
+
+print 
 print "{} is trying to sell a \"{}\" to {}.".format( Seller.Name, Item.Name, Buyer.Name)
 print "This item was appriased at {:,.2f} gp".format( Item.AppraisedAt )
 
@@ -227,7 +237,7 @@ if Seller.AskingPrice <= Buyer.ValueEstimation :
 else:
    if Buyer.ThinksSheIsBeingLiedTo :
       print "{Name} thinks they are being lied too!!! They lower thier offer".format( **Buyer.__dict__ )
-      Buyer.FinalOffer = Seller.aAskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
+      Buyer.FinalOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
       Buyer.InitialOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 4 )
    
    # The buyer thinks that the item is worth less the the Asking Price
