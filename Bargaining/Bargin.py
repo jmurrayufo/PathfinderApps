@@ -370,6 +370,7 @@ while 1 :
    # The Seller is asking for a price between the Initial and Final Offer
    elif Seller.CurrentOffer < Buyer.FinalOffer :
 
+      # Check to see if this offer is just outright accepted
       if roll >= 15 + Buyer.CHAModifier + failedOfferDCMod :
          break
 
@@ -378,13 +379,14 @@ while 1 :
          failedOfferDCMod += 5
          print "Negotiations fail, the DC is now: ",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
-         # Calculate new counter offer from the Buyer
-         Buyer.CurrentOffer = np.random.uniform(
-            Buyer.CurrentOffer,
-            ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
-            )
+         if roll - 15 - Buyer.CHAModifier - failedOfferDCMod >= -5 :
+            # Calculate new counter offer from the Buyer
+            Buyer.CurrentOffer = np.random.uniform(
+               Buyer.CurrentOffer,
+               ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
+               )
 
-         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
+            Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
 
          if Buyer.CurrentOffer == Seller.CurrentOffer :
             print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
