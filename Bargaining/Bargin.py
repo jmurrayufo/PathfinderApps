@@ -12,19 +12,58 @@ Seller.Name = "Jen"
 
 Buyer = Object()
 Buyer.Name = "NPCBob"
-Buyer.BluffSkill = 10
+Buyer.BluffSkill = 2
 Buyer.AppraiseSkill = 7
-Buyer.SenseMotiveSkill = 2
+Buyer.SenseMotiveSkill = 10
 Buyer.CHAModifier = 2
 
 Item = Object()
-Item.Name = "Darkwood and platinum music box"
-Item.Worth = 4000
-Item.AppraisedAt = 6000
+Item.Name = "Wand of Create Water"
+Item.Worth = 375
+Item.AppraisedAt = 250
 # Rare or exotic goods might get a +5 here
 Item.AppraiseDC = 20
 
 DEBUG = False
+
+class bcolors:
+   BLACK = '\033[30m'
+   RED = '\033[31m'
+   GREEN = '\033[32m'
+   YELLOW = '\033[33m'
+   BLUE = '\033[34m'
+   MAGENTA = '\033[35m'
+   CYAN = '\033[36m'
+   WHITE = '\033[37m'
+   
+   BLACKI = '\033[90m'
+   REDI = '\033[91m'
+   GREENI = '\033[92m'
+   YELLOWI = '\033[93m'
+   BLUEI = '\033[94m'
+   MAGENTAI = '\033[95m'
+   CYANI = '\033[96m'
+   WHITEI = '\033[97m'
+
+   BBLACK = '\033[40m'
+   BRED = '\033[41m'
+   BGREEN = '\033[42m'
+   BYELLOW = '\033[43m'
+   BBLUE = '\033[44m'
+   BMAGENTA = '\033[45m'
+   BCYAN = '\033[46m'
+   BWHITE = '\033[47m'
+   
+   BBLACKI = '\033[100m'
+   BREDI = '\033[101m'
+   BGREENI = '\033[102m'
+   BYELLOWI = '\033[103m'
+   BBLUEI = '\033[104m'
+   BMAGENTAI = '\033[105m'
+   BCYANI = '\033[106m'
+   BWHITEI = '\033[107m'
+
+   RESET = '\033[0m'
 
 """
 Step 1: Seller Sets the Asking Price
@@ -74,7 +113,7 @@ if Seller.UseBluffOnItemWorth :
 
 print
 Buyer.AppraiseCheck = Funcs.D20() + Buyer.AppraiseSkill - Item.AppraiseDC
-print "{Name} got a {AppraiseCheck} on their Appraise check for the item".format( **Buyer.__dict__ )
+print bcolors.RED + "{Name} got a {AppraiseCheck} on their Appraise check for the item".format( **Buyer.__dict__ )
 print "   Note: This is the Roll + Mods - DC!"
 
 # Check was passed, Buyer knows the value of the item
@@ -102,6 +141,8 @@ if Buyer.UseAppraiseSkill :
 
    print "{Name} will trust their own Appraisal of the item".format( **Buyer.__dict__ )
    Buyer.ValueEstimation = Buyer.ValueEstimation
+   if Seller.AskingPrice < Buyer.ValueEstimation :
+      print "   {} is asking for less then the Buyer thinks the item is worth. "
 
 else :
    # Buyer will attempt to Sense Motive on the Seller to get an idea of the value
@@ -134,6 +175,8 @@ else :
    else :
       print "{} didn't try to bluff, {} will keep their estimation!".format( Seller.Name, Buyer.Name )
 
+print bcolors.RESET
+
 """
 Step 3: Determine Undercut
 The Undercut Percentage is a portion of the item's price or value used to determine the buyer's Initial and Final Offers.
@@ -153,7 +196,9 @@ Seller.SenseMotiveCheck = Funcs.GetLegalInt()
 UndercutMod = max( 0, Buyer.BluffCheck - Seller.SenseMotiveCheck )
 
 print
-print "{Name} bluffs with a {BluffCheck}".format( **Buyer.__dict__ )
+print bcolors.RED + \
+   "{Name} bluffs with a {BluffCheck}".format( **Buyer.__dict__ ) + \
+   bcolors.RESET
 print "{Name} Senses Motive with a {SenseMotiveCheck}".format( **Seller.__dict__ )
 
 Buyer.UndercutPercent = 0.02 + 0.01 * UndercutMod
@@ -171,10 +216,10 @@ Unfair (Appraise): If the result of the buyer's Appraise check leads her to beli
 Unfair (Sense Motive): If the result of the buyer's Appraise check leads her to believe the seller's Asking Price is too high, subtract 2 x the Undercut Percentage from the seller's Asking Price to get the Final Offer, and subtract 4 x the Undercut Percentage to get the Initial Offer.
 """
 
-print 
+print bcolors.RED
 # Fair Price
 if Seller.AskingPrice <= Buyer.ValueEstimation :
-   print "{Name} thinks that the offer is fair".format( **Buyer.__dict__ )
+   print "{} thinks the offer is fair at {:,.2f}".format( Buyer.Name, min( Seller.AskingPrice, Buyer.ValueEstimation ) )
    Buyer.FinalOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent )
    Buyer.InitialOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
 
@@ -191,6 +236,8 @@ else:
       Buyer.FinalOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent )
       Buyer.InitialOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 2 )
 
+print bcolors.RESET,
+
 Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer, 3 )
 Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer, 3 )
 
@@ -199,7 +246,7 @@ Step 5: Bargain
 The buyer begins bargaining by countering the seller's price with her Initial Offer. This step repeats until the buyer and seller agree on a price or one side ends negotiations.
 
 Counteroffer Is Less Than Final Offer: If the seller counters with a price that is less than the buyer's Final Offer, have the seller attempt a Diplomacy check (DC 15 + the buyer's Charisma modifier). Success means the buyer accepts the seller's counteroffer and buys the item. Failure means the buyer holds at her Initial Offer. The seller can try again, but the Diplomacy check DC increases by 5 unless the seller lowers his price.
-   HOUSERULE: A offer less then the final offer SHOULD result in a counter offer!
+HOUSERULE: A offer less then the final offer SHOULD result in a counter offer!
 
 Counteroffer Equals Final Offer: If the seller counters with a price that is the same as the buyer's Final Offer, have the seller attempt a Diplomacy check (20 + the buyer's Charisma modifier). Success means the buyer accepts the seller's counteroffer and buys the item. Failure means the buyer counteroffers at a price between the Initial Offer and the Final Offer. The seller can try again, but the Diplomacy DC increases by 5 unless the seller lowers his price.
 
