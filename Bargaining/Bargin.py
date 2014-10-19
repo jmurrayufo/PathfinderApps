@@ -18,11 +18,11 @@ Buyer.SenseMotiveSkill = 10
 Buyer.CHAModifier = 2
 
 Item = Object()
-Item.Name = "Wand of Create Water"
-Item.Worth = 375
-Item.AppraisedAt = 250
+#Item.Name = "Wand of Create Water"
+#Item.Worth = 375
+#Item.AppraisedAt = 250
 # Rare or exotic goods might get a +5 here
-Item.AppraiseDC = 20
+#Item.AppraiseDC = 20
 
 DEBUG = False
 
@@ -65,19 +65,40 @@ class bcolors:
 
    RESET = '\033[0m'
 
-"""
-Step 1: Seller Sets the Asking Price
-The seller suggests a price to the buyer. If the Asking Price is more than 150%% of the item's actual value, the buyer simply refuses to bargain. The lowest amount the seller will accept is 75%% of this Asking Price.
-"""
-
 os.system('clear')
+
+"""
+Step 0: Get data for this run!
+"""
 
 print "Welcome to the Bargaining Simulator!"
 print "   Please note that this application is in TESTING at this time"
 print "   Many options are not easy to \"undo\" and can result in odd results!"
 
 print "Whos is trying to Bargain today?"
-Seller.Name = raw_input("> ")
+Seller.Name = raw_input( "> " )
+
+print 
+print "What is the name of the item to be sold?"
+Item.Name = raw_input( "> " )
+
+print "DM: What is the REAL value of this item in the current market?"
+Item.Worth = Funcs.GetLegalFloat()
+
+print "DM: What is the DC check to apprise this item?"
+print "   NOTE: This is 20 for most things, with a +5 if it is rare or exotic"
+Item.AppraiseDC = Funcs.GetLegalInt()
+
+print "Players: What did you appraise this item at?"
+Item.AppraisedAt = Funcs.GetLegalFloat()
+
+
+
+
+"""
+Step 1: Seller Sets the Asking Price
+The seller suggests a price to the buyer. If the Asking Price is more than 150%% of the item's actual value, the buyer simply refuses to bargain. The lowest amount the seller will accept is 75%% of this Asking Price.
+"""
 
 print 
 print "{} is trying to sell a \"{}\" to {}.".format( Seller.Name, Item.Name, Buyer.Name)
@@ -90,6 +111,8 @@ print "Your asking for {} gp".format( Seller.AskingPrice )
 if Seller.AskingPrice > Item.Worth * 1.5 :
    print "The buyer is insulted! They will not deal with you again!"
    exit()
+
+
 
 """
 Step 2: Evaluate Item
@@ -144,6 +167,7 @@ print "   They estimate this value at {:,.2f}".format( Buyer.ValueEstimation )
 
 # TODO: Round off the digits of accuracy in ValueEstimation to something more sane!
 Buyer.ThinksSheIsBeingLiedTo = False
+Buyer.SucessfullyBluffed = False
 
 print 
 # The Buyer will use their own estimations 
@@ -152,7 +176,7 @@ if Buyer.UseAppraiseSkill :
    print "{Name} will trust their own Appraisal of the item".format( **Buyer.__dict__ )
    Buyer.ValueEstimation = Buyer.ValueEstimation
    if Seller.AskingPrice < Buyer.ValueEstimation :
-      print "   {} is asking for less then the Buyer thinks the item is worth. "
+      print "   {} is asking for less then the Buyer thinks the item is worth. ".format( Seller.Name )
 
 else :
    # Buyer will attempt to Sense Motive on the Seller to get an idea of the value
@@ -174,12 +198,16 @@ else :
          print "   {} succesfully bluffed {} into their estimation of the item".format( Seller.Name, Buyer.Name )
          print "   They agree that its probably worth around {:,.2f} gp".format( Seller.AskingPrice )
          Buyer.ValueEstimation = Seller.AskingPrice
+         Buyer.SucessfullyBluffed = True
       
       # Oh no! The Buyer knows she is being lied too!
       else :
          print "   {} fail to bluffed {} into their estimation of the item!".format( Seller.Name, Buyer.Name )
          print "   {Name} suspects they are being lied too!!!".format( **Buyer.__dict__ )
          print "   They will use their own estimations of {:,.2f} gp".format( Buyer.ValueEstimation )
+         if Seller.AskingPrice < Buyer.ValueEstimation :
+            print "      NOTE: The player has offered the NPC even LESS then they think it is worth!"
+            print "         They will use the players value for all other negotiations!"
          Buyer.ValueEstimation = Buyer.ValueEstimation
          Buyer.ThinksSheIsBeingLiedTo = True
    else :
@@ -235,14 +263,19 @@ if Seller.AskingPrice <= Buyer.ValueEstimation :
 
 # Unfair Price
 else:
-   if Buyer.ThinksSheIsBeingLiedTo :
-      print "{Name} thinks they are being lied too!!! They lower thier offer".format( **Buyer.__dict__ )
-      Buyer.FinalOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
-      Buyer.InitialOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 4 )
+   if Buyer.SucessfullyBluffed :
+      print "{} fell for the bluff, and thinks the offer is fair at {:,.2f} gp".format( Buyer.Name, min( Seller.AskingPrice, Buyer.ValueEstimation ) )
+      Buyer.FinalOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent )
+      Buyer.InitialOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
+
+   if not Buyer.SucessfullyBluffed and Buyer.ThinksSheIsBeingLiedTo :
+      print "{} thinks they are being lied too!!! They lower thier offer to {:,.2f} gp".format( Buyer.Name, Buyer.ValueEstimation )
+      Buyer.FinalOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 2 )
+      Buyer.InitialOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 4 )
    
    # The buyer thinks that the item is worth less the the Asking Price
    else:
-      print "{Name} doesn't think that the item is really worth so much, and lowers their offer!".format( **Buyer.__dict__ )
+      print "{} doesn't think that the item is really worth so much, and lowers their offer to {:,.2f} gp!".format( Buyer.Name, Buyer.ValueEstimation )
       Buyer.FinalOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent )
       Buyer.InitialOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 2 )
 
@@ -288,6 +321,9 @@ while 1 :
    print "{} is currently offering a price of {:,.2f} gp".format( Buyer.Name, Buyer.CurrentOffer )
    if lastFailedPrice :
       print "Your last failing price was {:,.2f}".format( lastFailedPrice )
+      if lastFailedPrice == Buyer.CurrentOffer :
+         print "The buyer, upon futher consideration, thinks you offer is fair, and takes it!"
+         break
    print "What is {}'s counter offer?".format( Seller.Name )
    Seller.CurrentOffer = Funcs.GetLegalFloat()
 
