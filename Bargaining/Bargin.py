@@ -379,7 +379,7 @@ while 1 :
          failedOfferDCMod += 5
          print "Negotiations fail, the DC is now: ",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
-         if roll - 15 - Buyer.CHAModifier - failedOfferDCMod >= -5 :
+         if roll - 15 - Buyer.CHAModifier - failedOfferDCMod >= -10 :
             # Calculate new counter offer from the Buyer
             Buyer.CurrentOffer = np.random.uniform(
                Buyer.CurrentOffer,
