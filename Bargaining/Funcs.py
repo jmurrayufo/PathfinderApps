@@ -13,14 +13,14 @@ def GetLegalInt( prompt="> " ):
    while 1:
       try:
          return int( input( prompt ) )
-      except (ValueError, NameError):
+      except (ValueError, NameError, SyntaxError):
          continue
 
 def GetLegalFloat( prompt="> " ):
    while 1:
       try:
          return float( input( prompt ) )
-      except (ValueError, NameError):
+      except (ValueError, NameError, SyntaxError):
          continue
 
 def GetTruth( prompt="> " ):
