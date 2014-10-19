@@ -67,6 +67,10 @@ print
 print "Does {} (The Seller) want to attempt to bluff the Buyer into believeing their asking price is fair?".format( Seller.Name )
 Seller.UseBluffOnItemWorth = Funcs.GetTruth()
 
+if Seller.UseBluffOnItemWorth :
+   print "What is the total result of {}'s bluff check?".format( Seller.Name )
+   Seller.BluffCheck = Funcs.GetLegalInt()
+
 
 print
 Buyer.AppraiseCheck = Funcs.D20() + Buyer.AppraiseSkill - Item.AppraiseDC
@@ -84,7 +88,7 @@ elif Buyer.AppraiseCheck >= -5 :
 # Buyer has very wide range of estimation!
 else:
    print "{Name} has no clue about the value of the item!!!".format( **Buyer.__dict__ )   
-   Buyer.ValueEstimation = int( Item.Worth * np.random.uniform( 0.2, 1.8) )
+   Buyer.ValueEstimation = int( Item.Worth * np.random.uniform( 0.2, 1.8 ) )
 
 Buyer.ValueEstimation = Funcs.Round_to_n( Buyer.ValueEstimation, 3 )
 print "   They estimate this value at {:,.2f}".format( Buyer.ValueEstimation )
@@ -105,13 +109,12 @@ else :
 
    # If the Seller offered within 1% of the true value, just take that
    if abs( Buyer.ValueEstimation - Seller.AskingPrice ) < Item.Worth * 0.01 :
-      print "{Name} thinks that the player is offering a fair value.".format( **Buyer.__dict__ )
+      print "{} has been talked into thinking the {} is offering a fair value on the item.".format( Buyer.Name, Seller.Name )
       Buyer.ValueEstimation = Seller.AskingPrice
    elif Seller.UseBluffOnItemWorth :
       print "{} is trying to bluff {}!".format( Seller.Name, Buyer.Name )
       Broll = Funcs.D20() + Buyer.SenseMotiveSkill
-      print "What is {}'s bluff check?".format( Seller.Name )
-      Sroll = Funcs.GetLegalInt()
+      Sroll = Seller.BluffCheck 
       print "   Buyer Sense Motive:",Broll
       print "         Seller Bluff:",Sroll
       # TODO: The player should roll a bluff here reguardless of the NPCs decission
@@ -196,6 +199,7 @@ Step 5: Bargain
 The buyer begins bargaining by countering the seller's price with her Initial Offer. This step repeats until the buyer and seller agree on a price or one side ends negotiations.
 
 Counteroffer Is Less Than Final Offer: If the seller counters with a price that is less than the buyer's Final Offer, have the seller attempt a Diplomacy check (DC 15 + the buyer's Charisma modifier). Success means the buyer accepts the seller's counteroffer and buys the item. Failure means the buyer holds at her Initial Offer. The seller can try again, but the Diplomacy check DC increases by 5 unless the seller lowers his price.
+   HOUSERULE: A offer less then the final offer SHOULD result in a counter offer!
 
 Counteroffer Equals Final Offer: If the seller counters with a price that is the same as the buyer's Final Offer, have the seller attempt a Diplomacy check (20 + the buyer's Charisma modifier). Success means the buyer accepts the seller's counteroffer and buys the item. Failure means the buyer counteroffers at a price between the Initial Offer and the Final Offer. The seller can try again, but the Diplomacy DC increases by 5 unless the seller lowers his price.
 
@@ -204,6 +208,12 @@ Counteroffer Exceeds Final Offer: If the seller counters with a price higher tha
 
 print
 print "{} will make an initial offer of {:,.2f} gp".format( Buyer.Name, Buyer.InitialOffer )
+
+if Buyer.InitialOffer < Seller.AskingPrice * 0.75 :
+   print "   WARNING! The buy is asking for {:.1%} of the asking price! This is less then 75% of the asking price".format( Buyer.InitialOffer / Seller.AskingPrice )
+else :
+   print "   Buyer is asking for {:.1%} of the asking price! ".format( Buyer.InitialOffer / Seller.AskingPrice )
+
 print
 
 Buyer.CurrentOffer = Buyer.InitialOffer
@@ -218,14 +228,21 @@ while 1 :
    print
    if DEBUG : print "Buyer.FinalOffer:",Buyer.FinalOffer
    if DEBUG : print "Buyer.InitialOffer:",Buyer.InitialOffer
-   print "{} is currently offering a price of {:,.2f} gp".format( Buyer.Name, Buyer.InitialOffer )
+   print "{} is currently offering a price of {:,.2f} gp".format( Buyer.Name, Buyer.CurrentOffer )
    if lastFailedPrice :
       print "Your last failing price was {:,.2f}".format( lastFailedPrice )
    print "What is {}'s counter offer?".format( Seller.Name )
    Seller.CurrentOffer = Funcs.GetLegalFloat()
 
-   if Seller.CurrentOffer <= Buyer.CurrentOffer :
-      print "SUCCESS! {} will pay {:,.2f} gp for the item!".format( Buyer.Name, Seller.CurrentOffer )
+   if Seller.CurrentOffer < Buyer.CurrentOffer :
+      print "Are you SURE that {} wants to offer {:,.2f}?".format( Seller.Name, Seller.CurrentOffer )
+      print "{} is offering {:,.2f} already!".format( Buyer.Name, Buyer.CurrentOffer )
+      if Funcs.GetTruth() :
+         break
+      else :
+         continue
+
+   if Seller.CurrentOffer == Buyer.CurrentOffer :
       break
 
    if lastFailedPrice and Seller.CurrentOffer < lastFailedPrice :
@@ -238,43 +255,50 @@ while 1 :
    print "{} is considering the offer, roll a diplomacy!".format( Buyer.Name )
    roll = Funcs.GetLegalInt()
 
+
+   # NOTE: This is out of normal ordering! 
    if abs( Seller.CurrentOffer - Buyer.FinalOffer ) < Buyer.FinalOffer * 0.01 :
 
       if roll >= 20 + Buyer.CHAModifier + failedOfferDCMod :
-         print "SUCCESS! A roll of {} beats the needed {}".format( roll, 20 + Buyer.CHAModifier + failedOfferDCMod )
-         print "{} will pay {:,.2f} gp for the item!".format( Buyer.Name, Seller.CurrentOffer )
          break
       
       else :
          Buyer.CurrentOffer = np.random.uniform( Buyer.InitialOffer, Buyer.FinalOffer )
          Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
 
-         lastFailedPrice = Seller.CurrentOffer
+         lastFailedPrice = max( lastFailedPrice, Seller.CurrentOffer )
          failedOfferDCMod += 5
          print "Negotiations fail, the DC is now",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
-         print "{} is still offering {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
+         print "{} is now offering {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
 
 
-
+   # The Seller is asking for a price between the Initial and Final Offer
    elif Seller.CurrentOffer < Buyer.FinalOffer :
 
       if roll >= 15 + Buyer.CHAModifier + failedOfferDCMod :
-         print "SUCCESS! a check of {} beats the needed {}".format( roll, 15 + Buyer.CHAModifier + failedOfferDCMod )
-         print "{} will pay {:,.2f} gp for the item!".format( Buyer.Name, Seller.CurrentOffer )
          break
 
       else:
          lastFailedPrice = Seller.CurrentOffer
          failedOfferDCMod += 5
-         print "Negotiations fail, the DC is now",failedOfferDCMod
+         print "Negotiations fail, the DC is now: ",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
-         print "{} is still offering {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
+         # Calculate new counter offer from the Buyer
+         Buyer.CurrentOffer = np.random.uniform(
+            Buyer.CurrentOffer,
+            ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
+            )
 
+         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
+
+         if Buyer.CurrentOffer == Seller.CurrentOffer :
+            print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
+
+         print "{} counteroffers at {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
 
 
    elif Seller.CurrentOffer > Buyer.FinalOffer :
-
       # Success
       if roll >= 25 + Buyer.CHAModifier + failedOfferDCMod :
          Buyer.CurrentOffer = np.random.uniform( Buyer.InitialOffer, Buyer.FinalOffer )
@@ -294,8 +318,8 @@ while 1 :
       # SHIT! Failed by more then 5!
       else :
          print "{} is insulted by the offer! They lower their offer by 5%!".format( Buyer.Name )
-         Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer * 0.95 )
-         Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer * 0.95 )
+         Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer * 0.95, 3 )
+         Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer * 0.95, 3 )
          Buyer.CurrentOffer = Buyer.InitialOffer
 
          lastFailedPrice = Seller.CurrentOffer
@@ -303,6 +327,9 @@ while 1 :
          print "Negotiations fail, the DC is now",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
 
-print 
+print          
+print "SUCCESS! The price is agreed!"
+print "{} will pay {:,.2f} gp for the item!".format( Buyer.Name, Seller.CurrentOffer )
+
 print "Negotiations are complete!"
 print "{} will buy the item for {:,.2f} gp.".format( Buyer.Name, Seller.CurrentOffer )
