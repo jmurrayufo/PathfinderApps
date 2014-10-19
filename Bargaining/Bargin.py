@@ -321,8 +321,9 @@ while 1 :
    print "{} is currently offering a price of {:,.2f} gp".format( Buyer.Name, Buyer.CurrentOffer )
    if lastFailedPrice :
       print "Your last failing price was {:,.2f}".format( lastFailedPrice )
-      if lastFailedPrice == Buyer.CurrentOffer :
+      if lastFailedPrice <= Buyer.CurrentOffer :
          print "The buyer, upon futher consideration, thinks you offer is fair, and takes it!"
+         Seller.CurrentOffer = lastFailedPrice
          break
    print "What is {}'s counter offer?".format( Seller.Name )
    Seller.CurrentOffer = Funcs.GetLegalFloat()
