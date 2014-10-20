@@ -340,7 +340,7 @@ while 1 :
       break
 
    if lastFailedPrice and Seller.CurrentOffer < lastFailedPrice :
-      print "You offered a new lower price. DC reset!"
+      print bcolors.RED + "You offered a new lower price. DC reset!" + bcolors.RESET
       lastFailedPrice = None
       failedOfferDCMod = 0
 
@@ -356,8 +356,9 @@ while 1 :
       if roll >= 20 + Buyer.CHAModifier + failedOfferDCMod :
          break
       
-      else :
-         Buyer.CurrentOffer = np.random.uniform( Buyer.InitialOffer, Buyer.FinalOffer )
+      # Only check for failure if we are actaully OVER that value!
+      elif Sel.CurrentOffer >= Buyer.FinalOffer :
+         Buyer.CurrentOffer = np.random.uniform( Buyer.CurrentOffer, Buyer.FinalOffer )
          Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
 
          lastFailedPrice = max( lastFailedPrice, Seller.CurrentOffer )
@@ -365,10 +366,11 @@ while 1 :
          print "Negotiations fail, the DC is now",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
          print "{} is now offering {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
+         continue
 
 
    # The Seller is asking for a price between the Initial and Final Offer
-   elif Seller.CurrentOffer < Buyer.FinalOffer :
+   if Seller.CurrentOffer < Buyer.FinalOffer :
 
       # Check to see if this offer is just outright accepted
       if roll >= 15 + Buyer.CHAModifier + failedOfferDCMod :
