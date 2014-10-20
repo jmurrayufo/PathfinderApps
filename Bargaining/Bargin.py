@@ -82,17 +82,18 @@ print
 print "What is the name of the item to be sold?"
 Item.Name = raw_input( "> " )
 
+
+print "Players: What did you appraise this item at?"
+Item.AppraisedAt = Funcs.GetLegalFloat()
+
+print bcolors.RED,
 print "DM: What is the REAL value of this item in the current market?"
 Item.Worth = Funcs.GetLegalFloat()
 
 print "DM: What is the DC check to apprise this item?"
 print "   NOTE: This is 20 for most things, with a +5 if it is rare or exotic"
 Item.AppraiseDC = Funcs.GetLegalInt()
-
-print "Players: What did you appraise this item at?"
-Item.AppraisedAt = Funcs.GetLegalFloat()
-
-
+print bcolors.RESET
 
 
 """
