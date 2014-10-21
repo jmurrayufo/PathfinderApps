@@ -407,25 +407,24 @@ while 1 :
       print "   DM: The player did not beat a check of {} with a roll of {}".format( diplomacyDC, roll ),
       print bcolors.RESET
 
-      else:
-         lastFailedPrice = Seller.CurrentOffer
-         failedOfferDCMod += 5
-         print "Negotiations fail, the DC is now: ",failedOfferDCMod
-         print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
-         if roll - diplomacyDC >= -10 :
-            # Calculate new counter offer from the Buyer
-            Buyer.CurrentOffer = np.random.uniform(
-               Buyer.CurrentOffer,
-               ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
-               )
+      lastFailedPrice = Seller.CurrentOffer
+      failedOfferDCMod += 5
+      print "Negotiations fail, the DC is now: ",failedOfferDCMod
+      print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
+      if roll - diplomacyDC >= -10 :
+         # Calculate new counter offer from the Buyer
+         Buyer.CurrentOffer = np.random.uniform(
+            Buyer.CurrentOffer,
+            ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
+            )
 
-            Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
+         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
 
-         if Buyer.CurrentOffer == Seller.CurrentOffer :
-            print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
+      if Buyer.CurrentOffer == Seller.CurrentOffer :
+         print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
 
-         print "{} counteroffers at {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
-         continue
+      print "{} counteroffers at {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
+      continue
 
 
    elif Seller.CurrentOffer > Buyer.FinalOffer :
