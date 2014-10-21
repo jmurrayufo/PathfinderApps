@@ -12,10 +12,9 @@ Seller = Object()
 
 Buyer = Object()
 Buyer.Name = "NPCBob"
-Buyer.BluffSkill = 2
-Buyer.AppraiseSkill = 7
-Buyer.SenseMotiveSkill = 10
 Buyer.CHAModifier = 2
+# Adjust based on character level!
+Buyer.SkillsList = [10,7,2]
 
 Item = Object()
 #Item.Name = "Wand of Create Water"
@@ -66,6 +65,10 @@ class bcolors:
    RESET = '\033[0m'
 
 os.system('clear')
+np.random.shuffle( Buyer.SkillsList )
+Buyer.BluffSkill = Buyer.SkillsList[0]
+Buyer.AppraiseSkill = Buyer.SkillsList[1]
+Buyer.SenseMotiveSkill = Buyer.SkillsList[2]
 
 """
 Step 0: Get data for this run!
@@ -87,15 +90,20 @@ print "Players: What did you appraise this item at?"
 Item.AppraisedAt = Funcs.GetLegalFloat()
 
 print bcolors.RED,
-print "DM: What is the REAL value of this item in the current market?"
+print "   DM: What is the REAL value of this item in the current market?"
 Item.Worth = Funcs.GetLegalFloat()
 
-print "DM: What is the DC check to apprise this item?"
-print "   NOTE: This is 20 for most things, with a +5 if it is rare or exotic"
+print "   DM: What is the DC check to apprise this item?"
+print "      NOTE: This is 20 for most things, with a +5 if it is rare or exotic"
 Item.AppraiseDC = Funcs.GetLegalInt()
+
+print "   DM: The Buyer has been shuffled in the background, and got these stats!"
+print "   Buyer Bluff: {}".format( Buyer.BluffSkill )
+print "   Buyer Appraise: {}".format( Buyer.AppraiseSkill )
+print "   Buyer Sense Motive: {}".format( Buyer.SenseMotiveSkill )
+print "   Buyer CHA: {}".format( Buyer.CHAModifier )
+
 print bcolors.RESET
-
-
 """
 Step 1: Seller Sets the Asking Price
 The seller suggests a price to the buyer. If the Asking Price is more than 150%% of the item's actual value, the buyer simply refuses to bargain. The lowest amount the seller will accept is 75%% of this Asking Price.
@@ -166,7 +174,6 @@ else:
 Buyer.ValueEstimation = Funcs.Round_to_n( Buyer.ValueEstimation, 3 )
 print "   They estimate this value at {:,.2f}".format( Buyer.ValueEstimation )
 
-# TODO: Round off the digits of accuracy in ValueEstimation to something more sane!
 Buyer.ThinksSheIsBeingLiedTo = False
 Buyer.SucessfullyBluffed = False
 
@@ -193,8 +200,6 @@ else :
       Sroll = Seller.BluffCheck 
       print "   Buyer Sense Motive:",Broll
       print "         Seller Bluff:",Sroll
-      # TODO: The player should roll a bluff here reguardless of the NPCs decission
-      #  to use his own evaluation or not!
       if Sroll > Broll :
          print "   {} succesfully bluffed {} into their estimation of the item".format( Seller.Name, Buyer.Name )
          print "   They agree that its probably worth around {:,.2f} gp".format( Seller.AskingPrice )
@@ -225,7 +230,6 @@ To determine the Undercut Percentage, have the buyer attempt a Bluff check oppos
 
 Buyer.BluffCheck = Funcs.D20() + Buyer.BluffSkill
 
-# TODO: Prompt for users sense motive here!
 print
 print "{} is trying to haggle {} on undercut amounts.".format( Buyer.Name, Seller.Name)
 print "{Name} needs to sense motive to try to keep this undercut down!".format( **Seller.__dict__ )
@@ -279,6 +283,16 @@ else:
       print "{} doesn't think that the item is really worth so much, and lowers their offer to {:,.2f} gp!".format( Buyer.Name, Buyer.ValueEstimation )
       Buyer.FinalOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent )
       Buyer.InitialOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 2 )
+
+
+print 
+print "We will now salt the Final and Initial Offers to keep players from outright calculating values!"
+print "We will pick a salt amount between -1% and +1% and adjust both offers by the same %"
+
+salt = 1.0 + np.random.uniform( -0.01, 0.01 )
+
+Buyer.FinalOffer *= salt
+Buyer.InitialOffer *= salt
 
 print bcolors.RESET,
 
@@ -395,6 +409,7 @@ while 1 :
             print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
 
          print "{} counteroffers at {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
+         continue
 
 
    elif Seller.CurrentOffer > Buyer.FinalOffer :
@@ -416,9 +431,15 @@ while 1 :
 
       # SHIT! Failed by more then 5!
       else :
-         print "{} is insulted by the offer! They lower their offer by 5%!".format( Buyer.Name )
-         Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer * 0.95, 3 )
-         Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer * 0.95, 3 )
+         # TODO: 1D Interpolation from 100% -> 0 to 150% -> 20 for 
+
+         if np.random.choice( range(1,21) ) < 5 :
+            print "{} is greatly offended by the offer! They refuse to continue dealing with {}!".format( Buyer.Name, Seller.Name )
+            exit()
+         adjustment = np.random.uniform( 0.01, 0.09 )
+         print "{} is insulted by the offer! They lower their offer by {:.0%}!".format( Buyer.Name, adjustment )
+         Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer * ( 1 - adjustment ), 3 )
+         Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer * ( 1 - adjustment ), 3 )
          Buyer.CurrentOffer = Buyer.InitialOffer
 
          lastFailedPrice = Seller.CurrentOffer
