@@ -42,13 +42,23 @@ def GetTruth( prompt="> " ):
       else:
          continue
 
+def SkillChecks( Level ) :
+   # def Interpolate( x0, x1, y0, y1, x ):
+   #    return y0 + (y1-y0) * (x-x0) / (x1-x0)
+   # print " Munshkined:",Interpolate( 1, 10, 8, 35, Level )
+   # print "    Powered:",Interpolate( 1, 10, 6, 19, Level )
+   # print "Points Only:",Interpolate( 1, 10, 4, 12, Level )
+   # print "    Partial:",Interpolate( 1, 10, 4,  7, Level )
+   # print "    Minimal:",Interpolate( 1, 10, 1,  4, Level )
+   retVal = []
+   retVal.append( int( round( np.interp( Level, [1,20],[ 8,35] ) ) ) )
+   retVal.append( int( round( np.interp( Level, [1,20],[ 6,20] ) ) ) )
+   retVal.append( int( round( np.interp( Level, [1,20],[ 4,12] ) ) ) )
+   retVal.append( int( round( np.interp( Level, [1,20],[ 4, 7] ) ) ) )
+   retVal.append( int( round( np.interp( Level, [1,20],[ 1, 4] ) ) ) )
+   return retVal
+
 if __name__ == '__main__' :
 
-   import time
-
-   n=3
-   for i in range(1000,1000000,100):
-      print Round_to_n( i, n )
-      
-      time.sleep(0.01)
+   print SkillChecks( 20 )
 
