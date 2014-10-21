@@ -16,6 +16,8 @@ Buyer.CHAModifier = 2
 # Adjust based on character level!
 Buyer.SkillsList = [10,7,2]
 
+GlobalDecimalRounding = 4
+
 Item = Object()
 #Item.Name = "Wand of Create Water"
 #Item.Worth = 375
@@ -173,7 +175,7 @@ else:
    print "{Name} has no clue about the value of the item!!!".format( **Buyer.__dict__ )   
    Buyer.ValueEstimation = int( Item.Worth * np.random.uniform( 0.2, 1.8 ) )
 
-Buyer.ValueEstimation = Funcs.Round_to_n( Buyer.ValueEstimation, 3 )
+Buyer.ValueEstimation = Funcs.Round_to_n( Buyer.ValueEstimation, GlobalDecimalRounding )
 print "   They estimate this value at {:,.2f}".format( Buyer.ValueEstimation )
 
 Buyer.ThinksSheIsBeingLiedTo = False
@@ -246,7 +248,7 @@ print bcolors.RED + \
    bcolors.RESET
 print "{Name} Senses Motive with a {SenseMotiveCheck}".format( **Seller.__dict__ )
 
-Buyer.UndercutPercent = 0.02 + 0.01 * UndercutMod
+Buyer.UndercutPercent = 0.02 + ( 0.01 * UndercutMod )
 
 print "This results in a total undercut of: {:2.0%}".format( Buyer.UndercutPercent )
 
@@ -262,25 +264,26 @@ Unfair (Sense Motive): If the result of the buyer's Appraise check leads her to 
 """
 
 print bcolors.RED
-# Fair Price
+# Buyer thinks the asking price is fair, and takes it.
 if Seller.AskingPrice <= Buyer.ValueEstimation :
    print "{} thinks the offer is fair at {:,.2f}".format( Buyer.Name, min( Seller.AskingPrice, Buyer.ValueEstimation ) )
    Buyer.FinalOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent )
    Buyer.InitialOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
 
-# Unfair Price
+# The Buyer doesn't think she is offered fair value
 else:
+   # The PC bluffed them anyway, and the Buyer adjusts their offers to match
    if Buyer.SucessfullyBluffed :
       print "{} fell for the bluff, and thinks the offer is fair at {:,.2f} gp".format( Buyer.Name, min( Seller.AskingPrice, Buyer.ValueEstimation ) )
       Buyer.FinalOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent )
       Buyer.InitialOffer = Seller.AskingPrice * ( 1 - Buyer.UndercutPercent * 2 )
-
+   # If the Buyer was not bluffed, AND they know that they were bluffed, cut into thir own estimation more.
    if not Buyer.SucessfullyBluffed and Buyer.ThinksSheIsBeingLiedTo :
       print "{} thinks they are being lied too!!! They lower thier offer to {:,.2f} gp".format( Buyer.Name, Buyer.ValueEstimation )
       Buyer.FinalOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 2 )
       Buyer.InitialOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent * 4 )
    
-   # The buyer thinks that the item is worth less the the Asking Price
+   # Else the Buyer was neither lied to, nor thinks they are being lied too. 
    else:
       print "{} doesn't think that the item is really worth so much, and lowers their offer to {:,.2f} gp!".format( Buyer.Name, Buyer.ValueEstimation )
       Buyer.FinalOffer = Buyer.ValueEstimation * ( 1 - Buyer.UndercutPercent )
@@ -293,13 +296,14 @@ print "We will pick a salt amount between -1% and +1% and adjust both offers by 
 
 salt = 1.0 + np.random.uniform( -0.01, 0.01 )
 
+# Salt helps keeps things fun, and prevent any meta-gaming. This is a very minor shift, but prevents players from gaming the system too much. 
 Buyer.FinalOffer *= salt
 Buyer.InitialOffer *= salt
 
 print bcolors.RESET,
 
-Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer, 3 )
-Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer, 3 )
+Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer, GlobalDecimalRounding )
+Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer, GlobalDecimalRounding )
 
 """
 Step 5: Bargain
@@ -376,7 +380,7 @@ while 1 :
       # Only check for failure if we are actaully OVER that value!
       elif Sel.CurrentOffer >= Buyer.FinalOffer :
          Buyer.CurrentOffer = np.random.uniform( Buyer.CurrentOffer, Buyer.FinalOffer )
-         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
+         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
 
          lastFailedPrice = max( lastFailedPrice, Seller.CurrentOffer )
          failedOfferDCMod += 5
@@ -405,7 +409,7 @@ while 1 :
                ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
                )
 
-            Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
+            Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
 
          if Buyer.CurrentOffer == Seller.CurrentOffer :
             print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
@@ -418,7 +422,7 @@ while 1 :
       # Success
       if roll >= 25 + Buyer.CHAModifier + failedOfferDCMod :
          Buyer.CurrentOffer = np.random.uniform( Buyer.InitialOffer, Buyer.FinalOffer )
-         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, 3 )
+         Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
          print "{} wont go that high, and counter offers with {:,.2f} gp".format( Buyer.Name, Buyer.CurrentOffer )
       
       # Failure by only 5
@@ -449,8 +453,8 @@ while 1 :
             exit()
          adjustment = np.random.uniform( 0.01, 0.09 )
          print "{} is insulted by the offer! They lower their offer by {:.0%}!".format( Buyer.Name, adjustment )
-         Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer * ( 1 - adjustment ), 3 )
-         Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer * ( 1 - adjustment ), 3 )
+         Buyer.InitialOffer = Funcs.Round_to_n( Buyer.InitialOffer * ( 1 - adjustment ), GlobalDecimalRounding )
+         Buyer.FinalOffer = Funcs.Round_to_n( Buyer.FinalOffer * ( 1 - adjustment ), GlobalDecimalRounding )
          Buyer.CurrentOffer = Buyer.InitialOffer
 
          lastFailedPrice = Seller.CurrentOffer
