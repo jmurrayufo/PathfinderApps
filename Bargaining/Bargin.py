@@ -162,10 +162,12 @@ print "   Note: This is the Roll + Mods - DC!"
 if Buyer.AppraiseCheck >= 0 :
    print "{Name} understands the items worth well".format( **Buyer.__dict__ )
    Buyer.ValueEstimation = Item.Worth
+
 # Check was failed by just a bit, Buyer knows the value within 20%
 elif Buyer.AppraiseCheck >= -5 :
    print "{Name} only partially understands the value of the item!".format( **Buyer.__dict__ )
    Buyer.ValueEstimation = int( Item.Worth * np.random.uniform( 0.8, 1.2 ) )
+
 # Buyer has very wide range of estimation!
 else:
    print "{Name} has no clue about the value of the item!!!".format( **Buyer.__dict__ )   
@@ -191,7 +193,7 @@ else :
    #  of the item. 
 
    # If the Seller offered within 1% of the true value, just take that
-   if abs( Buyer.ValueEstimation - Seller.AskingPrice ) < Item.Worth * 0.01 :
+   if abs( Buyer.ValueEstimation - Seller.AskingPrice ) < Buyer.ValueEstimation * 0.01 :
       print "{} has been talked into thinking the {} is offering a fair value on the item.".format( Buyer.Name, Seller.Name )
       Buyer.ValueEstimation = Seller.AskingPrice
    elif Seller.UseBluffOnItemWorth :
@@ -432,8 +434,17 @@ while 1 :
       # SHIT! Failed by more then 5!
       else :
          # TODO: 1D Interpolation from 100% -> 0 to 150% -> 20 for 
+         print 
+         print "Wo! {} is VERY upset about this offer! The players diplimacy skill needs to keep them at the table!".format( Buyer.Name )
+         overshootDC = int( np.interp( Seller.CurrentOffer, [Buyer.FinalOffer, Buyer.FinalOffer*1.5], [0,20] ) )
+         print bcolors.RED,
+         print "   DM: The DC to beat is {}+{}={}".format( overshootDC, failedOfferDCMod, overshootDC + failedOfferDCMod ),
+         print bcolors.RESET
 
-         if np.random.choice( range(1,21) ) < 5 :
+         if roll < overshootDC + failedOfferDCMod :
+
+            print bcolors.RED,
+            print "The final DC was {} (Overshoot) + {} (mod) = {}".format( overshootDC, failedOfferDCMod, overshootDC+failedOfferDCMod )
             print "{} is greatly offended by the offer! They refuse to continue dealing with {}!".format( Buyer.Name, Seller.Name )
             exit()
          adjustment = np.random.uniform( 0.01, 0.09 )
@@ -451,5 +462,3 @@ print
 print "SUCCESS! The price is agreed!"
 print "{} will pay {:,.2f} gp for the item!".format( Buyer.Name, Seller.CurrentOffer )
 
-print "Negotiations are complete!"
-print "{} will buy the item for {:,.2f} gp.".format( Buyer.Name, Seller.CurrentOffer )
