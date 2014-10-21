@@ -96,7 +96,7 @@ print "      NOTE: This is 20 for most things, with a +5 if it is rare or exotic
 Item.AppraiseDC = Funcs.GetLegalInt()
 
 tmpProbSet = np.linspace( 1, 5, 5) / sum( np.linspace( 1, 5, 5 ) )
-Buyer.SkillsList = np.random.choice( Funcs.SkillChecks( Seller.Level ), 3, replace = False,  p = tmpProbSet )
+Buyer.SkillsList = np.random.choice( Funcs.SkillChecks( Seller.Level ), 3, replace = True,  p = tmpProbSet )
 Buyer.BluffSkill = Buyer.SkillsList[0]
 Buyer.AppraiseSkill = Buyer.SkillsList[1]
 Buyer.SenseMotiveSkill = Buyer.SkillsList[2]
@@ -384,7 +384,7 @@ while 1 :
          break
       
       # Only check for failure if we are actaully OVER that value!
-      elif Sel.CurrentOffer >= Buyer.FinalOffer :
+      elif Seller.CurrentOffer >= Buyer.FinalOffer :
          Buyer.CurrentOffer = np.random.uniform( Buyer.CurrentOffer, Buyer.FinalOffer )
          Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
 
@@ -409,21 +409,22 @@ while 1 :
 
       lastFailedPrice = Seller.CurrentOffer
       failedOfferDCMod += 5
-      print "Negotiations fail, the DC is now: ",failedOfferDCMod
+      print "Negotiations failed, the DC is now: ",failedOfferDCMod
       print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
       if roll - diplomacyDC >= -10 :
          # Calculate new counter offer from the Buyer
          Buyer.CurrentOffer = np.random.uniform(
-            Buyer.CurrentOffer,
+            Buyer.CurrentOffer*1.001,
             ( Buyer.CurrentOffer + Seller.CurrentOffer ) / 2
             )
 
          Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
 
-      if Buyer.CurrentOffer == Seller.CurrentOffer :
-         print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
+         if Buyer.CurrentOffer >= Seller.CurrentOffer :
+            print "{} Reconsiders your offer, and finds it to be fair.".format( Buyer.Name )
+            exit()
 
-      print "{} counteroffers at {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
+         print "{} counteroffers at {:,.2f} gp for the item.".format( Buyer.Name, Buyer.CurrentOffer )
       continue
 
 
