@@ -372,6 +372,7 @@ while 1 :
 
 
    # NOTE: This is out of normal ordering! 
+   #  This ordering differece is here to detect offers with 1% of the final offer anyway, and try to take them FIRST. 
    if abs( Seller.CurrentOffer - Buyer.FinalOffer ) < Buyer.FinalOffer * 0.01 :
 
       if roll >= 20 + Buyer.CHAModifier + failedOfferDCMod :
@@ -394,15 +395,19 @@ while 1 :
    if Seller.CurrentOffer < Buyer.FinalOffer :
 
       # Check to see if this offer is just outright accepted
-      if roll >= 15 + Buyer.CHAModifier + failedOfferDCMod :
+      diplomacyDC = 15 + Buyer.CHAModifier + failedOfferDCMod
+      if roll >= diplomacyDC :
          break
+      print bcolors.RED,
+      print "   DM: The player did not beat a check of {} with a roll of {}".format( diplomacyDC, roll ),
+      print bcolors.RESET
 
       else:
          lastFailedPrice = Seller.CurrentOffer
          failedOfferDCMod += 5
          print "Negotiations fail, the DC is now: ",failedOfferDCMod
          print "{} will need to lower thier price bellow {:,.2f} gp to be rid of this DC.".format( Seller.Name, lastFailedPrice )
-         if roll - 15 - Buyer.CHAModifier - failedOfferDCMod >= -10 :
+         if roll - diplomacyDC >= -10 :
             # Calculate new counter offer from the Buyer
             Buyer.CurrentOffer = np.random.uniform(
                Buyer.CurrentOffer,
@@ -420,13 +425,14 @@ while 1 :
 
    elif Seller.CurrentOffer > Buyer.FinalOffer :
       # Success
-      if roll >= 25 + Buyer.CHAModifier + failedOfferDCMod :
+      diplomacyDC = 25 + Buyer.CHAModifier + failedOfferDCMod
+      if roll >= diplomacyDC :
          Buyer.CurrentOffer = np.random.uniform( Buyer.InitialOffer, Buyer.FinalOffer )
          Buyer.CurrentOffer = Funcs.Round_to_n( Buyer.CurrentOffer, GlobalDecimalRounding )
          print "{} wont go that high, and counter offers with {:,.2f} gp".format( Buyer.Name, Buyer.CurrentOffer )
       
       # Failure by only 5
-      elif roll + 5 >= 25 + Buyer.CHAModifier + failedOfferDCMod :
+      elif roll + 5 >= diplomacyDC :
          print "{} refuses the current offer, and re-offers the initial price of {:,.2f} gp".format( Buyer.Name, Buyer.InitialOffer )
          Buyer.CurrentOffer = Buyer.InitialOffer
 
