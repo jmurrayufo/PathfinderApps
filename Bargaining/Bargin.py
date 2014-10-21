@@ -12,9 +12,6 @@ Seller = Object()
 
 Buyer = Object()
 Buyer.Name = "NPCBob"
-Buyer.CHAModifier = 2
-# Adjust based on character level!
-Buyer.SkillsList = [10,7,2]
 
 GlobalDecimalRounding = 4
 
@@ -67,10 +64,6 @@ class bcolors:
    RESET = '\033[0m'
 
 os.system('clear')
-np.random.shuffle( Buyer.SkillsList )
-Buyer.BluffSkill = Buyer.SkillsList[0]
-Buyer.AppraiseSkill = Buyer.SkillsList[1]
-Buyer.SenseMotiveSkill = Buyer.SkillsList[2]
 
 """
 Step 0: Get data for this run!
@@ -82,6 +75,9 @@ print "   Many options are not easy to \"undo\" and can result in odd results!"
 
 print "Whos is trying to Bargain today?"
 Seller.Name = raw_input( "> " )
+
+print "And what level are they?"
+Seller.Level = Funcs.GetLegalInt( "> " )
 
 print 
 print "What is the name of the item to be sold?"
@@ -98,6 +94,15 @@ Item.Worth = Funcs.GetLegalFloat()
 print "   DM: What is the DC check to apprise this item?"
 print "      NOTE: This is 20 for most things, with a +5 if it is rare or exotic"
 Item.AppraiseDC = Funcs.GetLegalInt()
+
+tmpProbSet = np.linspace( 1, 5, 5) / sum( np.linspace( 1, 5, 5 ) )
+Buyer.SkillsList = np.random.choice( Funcs.SkillChecks( Seller.Level ), 3, replace = False,  p = tmpProbSet )
+Buyer.BluffSkill = Buyer.SkillsList[0]
+Buyer.AppraiseSkill = Buyer.SkillsList[1]
+Buyer.SenseMotiveSkill = Buyer.SkillsList[2]
+
+Buyer.CHAModifier = np.random.choice( Funcs.Attribute( Seller.Level ), p = tmpProbSet )
+
 
 print "   DM: The Buyer has been shuffled in the background, and got these stats!"
 print "   Buyer Bluff: {}".format( Buyer.BluffSkill )

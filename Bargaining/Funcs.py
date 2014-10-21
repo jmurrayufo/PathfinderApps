@@ -61,5 +61,4 @@ def Attribute( Level ) :
       ]
 
 if __name__ == '__main__' :
-   print SkillChecks( 4 )
-   print Attribute( 4 )
+   x = SkillChecks( 4 )
