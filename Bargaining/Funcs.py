@@ -43,22 +43,23 @@ def GetTruth( prompt="> " ):
          continue
 
 def SkillChecks( Level ) :
-   # def Interpolate( x0, x1, y0, y1, x ):
-   #    return y0 + (y1-y0) * (x-x0) / (x1-x0)
-   # print " Munshkined:",Interpolate( 1, 10, 8, 35, Level )
-   # print "    Powered:",Interpolate( 1, 10, 6, 19, Level )
-   # print "Points Only:",Interpolate( 1, 10, 4, 12, Level )
-   # print "    Partial:",Interpolate( 1, 10, 4,  7, Level )
-   # print "    Minimal:",Interpolate( 1, 10, 1,  4, Level )
-   retVal = []
-   retVal.append( int( round( np.interp( Level, [1,20],[ 8,35] ) ) ) )
-   retVal.append( int( round( np.interp( Level, [1,20],[ 6,20] ) ) ) )
-   retVal.append( int( round( np.interp( Level, [1,20],[ 4,12] ) ) ) )
-   retVal.append( int( round( np.interp( Level, [1,20],[ 4, 7] ) ) ) )
-   retVal.append( int( round( np.interp( Level, [1,20],[ 1, 4] ) ) ) )
-   return retVal
+   return [
+      int( round( np.interp( Level, [1,20],[ 8,60] ) ) ),
+      int( round( np.interp( Level, [1,20],[ 6,40] ) ) ),
+      int( round( np.interp( Level, [1,20],[ 4,24] ) ) ),
+      int( round( np.interp( Level, [1,20],[ 4,14] ) ) ),
+      int( round( np.interp( Level, [1,20],[ 1, 8] ) ) ),
+      ]
+
+def Attribute( Level ) :
+   return [
+      int( np.interp( Level, [ 1,4,8,12,16,20 ], [  4, 6, 7, 8, 9,10 ] ) ),
+      int( np.interp( Level, [ 1,4,8,12,16,20 ], [  2, 3, 4, 5, 7, 9 ] ) ),
+      int( np.interp( Level, [ 1,4,8,12,16,20 ], [  1, 2, 2, 3, 4, 5 ] ) ),
+      int( np.interp( Level, [ 1,4,8,12,16,20 ], [  0, 1, 1, 2, 2, 3 ] ) ),
+      int( np.interp( Level, [ 1,4,8,12,16,20 ], [ -1,-1,-1, 0, 0, 1 ] ) ),
+      ]
 
 if __name__ == '__main__' :
-
-   print SkillChecks( 20 )
-
+   print SkillChecks( 4 )
+   print Attribute( 4 )
