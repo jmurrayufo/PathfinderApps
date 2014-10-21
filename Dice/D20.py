@@ -35,31 +35,20 @@ def GetRandomSide():
       side = choice( tmplist )
    return side
 
-print "Begin"
-speed = 15
-side = choice( mapping.keys() )
-last = side
-while speed > 0.5 :
-   tmplist = [x for x in mapping[side] if x != last]
-   last = side
-   side = choice( tmplist )
+if __name__ == '__main__' :
+   while 1:
+      speed = 15
+      side = choice( mapping.keys() )
+      last = side
+      while speed > 0.5 :
+         tmplist = [x for x in mapping[side] if x != last]
+         last = side
+         side = choice( tmplist )
 
-   print "\n{:2}".format( side )
-   time.sleep(1.0/speed)
-   speed -= random() * 5
+         print "\n{:2}".format( side )
+         time.sleep(1.0/speed)
+         speed -= random() * 5
 
-
-
-print "Almost got:",mapping[side]
-"""
-results = []
-for i in range( 1000 ):
-   results.append( GetRandomSide() )
-
-for i in range(1,21):
-   print "{:2}:{:6,}".format(i,results.count(i))
-
-print np.std( results )
-print np.mean( results )
-
-"""
+      print "Almost got:",mapping[side]
+      raw_input( "Press enter to roll again..." )
+      print
