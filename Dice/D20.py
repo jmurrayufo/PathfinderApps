@@ -45,10 +45,13 @@ if __name__ == '__main__' :
          last = side
          side = choice( tmplist )
 
-         print "\n{:2}".format( side )
+         print "\n{:5}".format( side )
          time.sleep(1.0/speed)
          speed -= random() * 5
 
       print "Almost got:",mapping[side]
-      raw_input( "Press enter to roll again..." )
+      try:
+         raw_input( "Press enter to roll again..." )
+      except (EOFError):
+         exit()
       print
