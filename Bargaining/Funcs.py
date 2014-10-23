@@ -48,7 +48,7 @@ def SkillChecks( Level ) :
       int( round( np.interp( Level, [1,20],[ 6,40] ) ) ),
       int( round( np.interp( Level, [1,20],[ 4,24] ) ) ),
       int( round( np.interp( Level, [1,20],[ 4,14] ) ) ),
-      int( round( np.interp( Level, [1,20],[ 1, 8] ) ) ),
+      int( round( np.interp( Level, [1,20],[-3, 2] ) ) ),
       ]
 
 def Attribute( Level ) :
