@@ -35,7 +35,30 @@ def GetRandomSide():
       side = choice( tmplist )
    return side
 
+def ProoveRandom(tests=5000):
+   tStart = time.time()
+   Count = np.zeros(20,dtype=int)
+   while time.time() - tStart < 10 :
+      speed = 15
+      side = choice( mapping.keys() )
+      last = side
+      while speed > 0.5 :
+         tmplist = [x for x in mapping[side] if x != last]
+         last = side
+         side = choice( tmplist )
+         speed -= random() * 5
+      Count[side-1]+=1
+   
+   print Count
+   print "Total Rolls:",sum(Count)
+   print "STD:",np.std(Count)
+   total = 0
+   for side,val in enumerate( Count ):
+      total += (side+1)*val
+   print "Average:",total/float( sum(Count) )
+
 if __name__ == '__main__' :
+   ProoveRandom()
    while 1:
       speed = 15
       side = choice( mapping.keys() )
