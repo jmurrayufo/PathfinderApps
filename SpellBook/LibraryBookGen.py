@@ -10,7 +10,7 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 
 playerLevel = 4
 
-townCrapFactor = 0.8
+townCrapFactor = 0.7
 
 spellPerLevel =  5
 spellPerLevel *= townCrapFactor 
@@ -18,15 +18,15 @@ spellPerLevel *= townCrapFactor
 johnsSpellRequests = []
 
 expectedSpellsPerLevel = [
-   min( 30, int( max( 0, ( playerLevel -  0 ) * spellPerLevel ) ) ), # Level 1 (max 112)
-   min( 30, int( max( 0, ( playerLevel -  2 ) * spellPerLevel ) ) ), # Level 2 (max 135)
-   min( 30, int( max( 0, ( playerLevel -  4 ) * spellPerLevel ) ) ), # Level 3 (max 117)
-   min( 30, int( max( 0, ( playerLevel -  6 ) * spellPerLevel ) ) ), # Level 4 (max 100)
-   min( 30, int( max( 0, ( playerLevel -  8 ) * spellPerLevel ) ) ), # Level 5 (max 89)
-   min( 30, int( max( 0, ( playerLevel - 10 ) * spellPerLevel ) ) ), # Level 6 (max 74)
-   min( 30, int( max( 0, ( playerLevel - 12 ) * spellPerLevel ) ) ), # Level 7 (max 66)
-   min( 30, int( max( 0, ( playerLevel - 14 ) * spellPerLevel ) ) ), # Level 8 (max 47)
-   min( 30, int( max( 0, ( playerLevel - 16 ) * spellPerLevel ) ) ), # Level 9 (max 43)
+   min( 20, int( max( 0, ( playerLevel -  0 ) * spellPerLevel ) ) ), # Level 1 (max 112)
+   min( 20, int( max( 0, ( playerLevel -  2 ) * spellPerLevel ) ) ), # Level 2 (max 135)
+   min( 20, int( max( 0, ( playerLevel -  4 ) * spellPerLevel ) ) ), # Level 3 (max 117)
+   min( 20, int( max( 0, ( playerLevel -  6 ) * spellPerLevel ) ) ), # Level 4 (max 100)
+   min( 20, int( max( 0, ( playerLevel -  8 ) * spellPerLevel ) ) ), # Level 5 (max 89)
+   min( 20, int( max( 0, ( playerLevel - 10 ) * spellPerLevel ) ) ), # Level 6 (max 74)
+   min( 20, int( max( 0, ( playerLevel - 12 ) * spellPerLevel ) ) ), # Level 7 (max 66)
+   min( 20, int( max( 0, ( playerLevel - 14 ) * spellPerLevel ) ) ), # Level 8 (max 47)
+   min( 20, int( max( 0, ( playerLevel - 16 ) * spellPerLevel ) ) ), # Level 9 (max 43)
 ]
 
 levelAmounts = [
@@ -44,7 +44,7 @@ levelAmounts = [
 # Force each level to have at LEAST the minimum number of spells
 for idx,val in enumerate( levelAmounts ) :
    if val and val < spellPerLevel :
-      levelAmounts[idx] = spellPerLevel
+      levelAmounts[idx] = int( spellPerLevel )
 
 spellCopyCosts = [
      7.5,
@@ -136,5 +136,5 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
       print "      Copy Cost: {copy_cost} gp".format( **spell )
       print
 
-print "Total Spells: {}".format( sum( levelAmounts ) )
+print "Total Spells: {}".format( int( sum( levelAmounts ) ) )
 
