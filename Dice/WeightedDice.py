@@ -46,7 +46,7 @@ try:
          print "{:2} [{:5,.1%}]   Expected: {:2} [{:5,.1%}]".format( side+1, p[side], idx+1, p[idx])
       count[side] += 1
 
-      p[side] *= 0.7 + np.random.random()*0.1
+      p[side] *= 0.4 + np.random.random()*0.2
       
       p /= sum( p ) 
 
