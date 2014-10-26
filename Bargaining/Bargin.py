@@ -124,9 +124,7 @@ print "What is the Seller Offering for an Asking Price?"
 Seller.AskingPrice = Funcs.GetLegalInt()
 print "Your asking for {} gp".format( Seller.AskingPrice )
 
-if Seller.AskingPrice > Item.Worth * 1.5 :
-   print "The buyer is insulted! They will not deal with you again!"
-   exit()
+
 
 
 
@@ -229,6 +227,10 @@ else :
       print "{} didn't try to bluff, {} will keep their estimation!".format( Seller.Name, Buyer.Name )
 
 print bcolors.RESET
+
+if Seller.AskingPrice > Buyer.ValueEstimation * 1.5 :
+   print "The buyer is insulted! They will not deal with you again!"
+   exit()
 
 """
 Step 3: Determine Undercut
