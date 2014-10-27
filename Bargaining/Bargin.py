@@ -393,6 +393,8 @@ class BargainSM(object):
       lastFailedPrice = None
 
       while 1 :
+         print 
+         print
          print
          if DEBUG : print "Buyer.FinalOffer:",Buyer.FinalOffer
          if DEBUG : print "Buyer.InitialOffer:",Buyer.InitialOffer
