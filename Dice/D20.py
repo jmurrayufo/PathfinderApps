@@ -35,10 +35,10 @@ def GetRandomSide():
       side = choice( tmplist )
    return side
 
-def ProoveRandom(tests=5000):
+def ProoveRandom(tTotal):
    tStart = time.time()
    Count = np.zeros(20,dtype=int)
-   while time.time() - tStart < 10 :
+   while time.time() - tStart < tTotal :
       speed = 15
       side = choice( mapping.keys() )
       last = side
@@ -58,7 +58,9 @@ def ProoveRandom(tests=5000):
    print "Average:",total/float( sum(Count) )
 
 if __name__ == '__main__' :
-   ProoveRandom()
+   print "We will first take a moment to proove that we are random!"
+   ProoveRandom(5)
+   print "Now to the roller\n"
    while 1:
       speed = 15
       side = choice( mapping.keys() )

@@ -243,7 +243,7 @@ class BargainSM(object):
 
          # If the Seller offered within 1% of the true value, just take that
          if abs( self.Buyer.ValueEstimation - self.Seller.AskingPrice ) < self.Buyer.ValueEstimation * 0.01 :
-            print "{} has been talked into thinking the {} is offering a fair value on the self.Item.".format( self.Buyer.Name, self.Seller.Name )
+            print "{} has been talked into thinking that {} is offering a fair value on {}.".format( self.Buyer.Name, self.Seller.Name, Item.Name )
             self.Buyer.ValueEstimation = self.Seller.AskingPrice
          elif self.Seller.UseBluffOnItemWorth :
             print "{} is trying to bluff {}!".format( self.Seller.Name, self.Buyer.Name )
@@ -478,7 +478,7 @@ class BargainSM(object):
                   print "{} Reconsiders your offer, and finds it to be fair.".format( self.Buyer.Name )
                   exit()
 
-               print "{} counteroffers at {:,.2f} gp for the self.Item.".format( self.Buyer.Name, self.Buyer.CurrentOffer )
+               print "{} counteroffers at {:,.2f} gp for {}.".format( self.Buyer.Name, self.Buyer.CurrentOffer, Item.Name )
             continue
 
 
