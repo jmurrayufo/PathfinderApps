@@ -67,6 +67,8 @@ class BargainSM(object):
 
       self.Result = None
 
+      self.RollsDict = {}
+
 
    def Run( self ):
       
@@ -83,7 +85,7 @@ class BargainSM(object):
          try :
             stateMap[ self.State ]()
          except (KeyboardInterrupt) :
-            print "\nYou have exited the script execution."
+            print "\n\nYou have exited the script execution."
             print "Would you like to go back or quit?"
             print "q: Quit"
             print "b: Go back one state and continue" 
@@ -100,7 +102,7 @@ class BargainSM(object):
                break
          if self.Result != None :
             self.StepFinished()
-            break
+            return
 
          self.State += 1
 
@@ -115,7 +117,7 @@ class BargainSM(object):
       print "   Please note that this application is in TESTING at this time"
       print "   Many options are not easy to \"undo\" and can result in odd results!"
 
-      print "Whos is trying to Bargain today?"
+      print "Who is trying to Bargain today?"
       self.Seller.Name = raw_input( "> " )
 
       print "And what level are they?"
@@ -129,7 +131,7 @@ class BargainSM(object):
       print "Players: What did you appraise this item at?"
       self.Item.AppraisedAt = Funcs.GetLegalFloat()
 
-      print bcolors.RED,
+      print bcolors.RED
       print "   DM: What is the REAL value of this item in the current market?"
       self.Item.Worth = Funcs.GetLegalFloat()
 
@@ -137,20 +139,32 @@ class BargainSM(object):
       print "      NOTE: This is 20 for most things, with a +5 if it is rare or exotic"
       self.Item.AppraiseDC = Funcs.GetLegalInt()
 
-      tmpProbSet = np.linspace( 1, 5, 5) / sum( np.linspace( 1, 5, 5 ) )
-      self.Buyer.SkillsList = np.random.choice( Funcs.SkillChecks( self.Seller.Level ), 3, replace = True,  p = tmpProbSet )
-      self.Buyer.BluffSkill = self.Buyer.SkillsList[0]
-      self.Buyer.AppraiseSkill = self.Buyer.SkillsList[1]
-      self.Buyer.SenseMotiveSkill = self.Buyer.SkillsList[2]
+      if 's0BuyerStats' not in self.RollsDict :
+         tmpProbSet = np.linspace( 1, 5, 5) / sum( np.linspace( 1, 5, 5 ) )
+         self.Buyer.SkillsList = np.random.choice( Funcs.SkillChecks( self.Seller.Level ), 3, replace = True,  p = tmpProbSet )
+         self.Buyer.BluffSkill = self.Buyer.SkillsList[0]
+         self.Buyer.AppraiseSkill = self.Buyer.SkillsList[1]
+         self.Buyer.SenseMotiveSkill = self.Buyer.SkillsList[2]
 
-      self.Buyer.CHAModifier = np.random.choice( Funcs.Attribute( self.Seller.Level ), p = tmpProbSet )
+         self.Buyer.CHAModifier = np.random.choice( Funcs.Attribute( self.Seller.Level ), p = tmpProbSet )
+         self.RollsDict['s0BuyerStats'] = True
+      else :
+         print "Stats already rolled, skipping..."
 
-
+      print
       print "   DM: The Buyer has been shuffled in the background, and got these stats!"
       print "   Buyer Bluff: {}".format( self.Buyer.BluffSkill )
       print "   Buyer Appraise: {}".format( self.Buyer.AppraiseSkill )
       print "   Buyer Sense Motive: {}".format( self.Buyer.SenseMotiveSkill )
       print "   Buyer CHA: {}".format( self.Buyer.CHAModifier )
+
+      print
+      print "   DM: Do the player have a good/bad relationship with this person? If so, adjust the undercut!"
+      print "   DM: Give the undercut in whole percents (for 2% enter 2)."
+      
+      self.Buyer.MinUndercutAmount = Funcs.GetLegalFloat() / 100.
+      print "   DM: Buyer Minimum Undercut set."
+      print "   Buyer Minimum Undercut is {:.1%}".format( self.Buyer.MinUndercutAmount )
 
       print bcolors.RESET
 
@@ -203,27 +217,34 @@ class BargainSM(object):
 
 
       print
-      self.Buyer.AppraiseCheck = Funcs.D20() + self.Buyer.AppraiseSkill - self.Item.AppraiseDC
+      if 's2BuyerAppraiseRoll' not in self.RollsDict :
+         self.Buyer.AppraiseCheck = Funcs.D20() + self.Buyer.AppraiseSkill 
+         self.RollsDict['s2BuyerAppraiseRoll'] = True
       print bcolors.RED + "{Name} got a {AppraiseCheck} on their Appraise check for the item".format( **self.Buyer.__dict__ )
       print "   Note: This is the Roll + Mods - DC!"
 
       # Check was passed, Buyer knows the value of the item
-      if self.Buyer.AppraiseCheck >= 0 :
+      if self.Buyer.AppraiseCheck >=  self.Item.AppraiseDC:
          print "{Name} understands the items worth well".format( **self.Buyer.__dict__ )
-         self.Buyer.ValueEstimation = self.Item.Worth
+         self.Buyer.SelfValueEstimation = self.Item.Worth
 
       # Check was failed by just a bit, Buyer knows the value within 20%
-      elif self.Buyer.AppraiseCheck >= -5 :
+      elif self.Buyer.AppraiseCheck >= self.Item.AppraiseDC - 5 :
          print "{Name} only partially understands the value of the item!".format( **self.Buyer.__dict__ )
-         self.Buyer.ValueEstimation = int( self.Item.Worth * np.random.uniform( 0.8, 1.2 ) )
+         if 's2BuyerSelfValueRolls' not in self.RollsDict :
+            self.Buyer.SelfValueEstimation = int( self.Item.Worth * np.random.uniform( 0.8, 1.2 ) )
 
       # Buyer has very wide range of estimation!
       else:
          print "{Name} has no clue about the value of the item!!!".format( **self.Buyer.__dict__ )   
-         self.Buyer.ValueEstimation = int( self.Item.Worth * np.random.uniform( 0.2, 1.8 ) )
+         if 's2BuyerSelfValueRolls' not in self.RollsDict :
+            self.Buyer.SelfValueEstimation = int( self.Item.Worth * np.random.uniform( 0.2, 1.8 ) )
 
-      self.Buyer.ValueEstimation = Funcs.Round_to_n( self.Buyer.ValueEstimation, GlobalDecimalRounding )
-      print "   They estimate this value at {:,.2f}".format( self.Buyer.ValueEstimation )
+      self.RollsDict['s2BuyerSelfValueRolls'] = True
+   
+      self.Buyer.SelfValueEstimation = Funcs.Round_to_n( self.Buyer.SelfValueEstimation, GlobalDecimalRounding )
+      self.Buyer.ValueEstimation = self.Buyer.SelfValueEstimation
+      print "   They estimate this value at {:,.2f}".format( self.Buyer.SelfValueEstimation )
 
       self.Buyer.ThinksSheIsBeingLiedTo = False
       self.Buyer.SucessfullyBluffed = False
@@ -233,8 +254,7 @@ class BargainSM(object):
       if self.Buyer.UseAppraiseSkill :
 
          print "{Name} will trust their own Appraisal of the item".format( **self.Buyer.__dict__ )
-         self.Buyer.ValueEstimation = self.Buyer.ValueEstimation
-         if self.Seller.AskingPrice < self.Buyer.ValueEstimation :
+         if self.Seller.AskingPrice < self.Buyer.SelfValueEstimation :
             print "   {} is asking for less then the Buyer thinks the item is worth. ".format( self.Seller.Name )
 
       else :
@@ -242,11 +262,12 @@ class BargainSM(object):
          #  of the self.Item. 
 
          # If the Seller offered within 1% of the true value, just take that
-         if abs( self.Buyer.ValueEstimation - self.Seller.AskingPrice ) < self.Buyer.ValueEstimation * 0.01 :
-            print "{} has been talked into thinking that {} is offering a fair value on {}.".format( self.Buyer.Name, self.Seller.Name, Item.Name )
+         if abs( self.Buyer.SelfValueEstimation - self.Seller.AskingPrice ) < self.Buyer.ValueEstimation * 0.01 :
+            print "{} has been talked into thinking that {} is offering a fair value on {}.".format( self.Buyer.Name, self.Seller.Name, self.Item.Name )
             self.Buyer.ValueEstimation = self.Seller.AskingPrice
          elif self.Seller.UseBluffOnItemWorth :
             print "{} is trying to bluff {}!".format( self.Seller.Name, self.Buyer.Name )
+            # This roll is NOT saved. If the players wanna rebluff, the Buyer gets to resense. 
             Broll = Funcs.D20() + self.Buyer.SenseMotiveSkill
             Sroll = self.Seller.BluffCheck 
             print "   Buyer Sense Motive:",Broll
@@ -265,7 +286,7 @@ class BargainSM(object):
                if self.Seller.AskingPrice < self.Buyer.ValueEstimation :
                   print "      NOTE: The player has offered the NPC even LESS then they think it is worth!"
                   print "         They will use the players value for all other negotiations!"
-               self.Buyer.ValueEstimation = self.Buyer.ValueEstimation
+               self.Buyer.ValueEstimation = self.Buyer.SelfValueEstimation
                self.Buyer.ThinksSheIsBeingLiedTo = True
          else :
             print "{} didn't try to bluff, {} will keep their estimation!".format( self.Seller.Name, self.Buyer.Name )
@@ -273,8 +294,13 @@ class BargainSM(object):
       print bcolors.RESET
 
       if self.Seller.AskingPrice > self.Buyer.ValueEstimation * 1.5 :
+         print bcolors.RED
+         print "   DM: The players tried to ask for {:,.2f} gp, for an item that the buyer thinks is only worth {:,.2f} gp.".format( self.Seller.AskingPrice, self.Buyer.ValueEstimation )
+         print "   DM: The max the buyer would have taken was {:,.2f} gp (150% Estimated Value).".format( self.Buyer.ValueEstimation * 1.5 )
          print "The buyer is insulted! They will not deal with you again!"
-         exit()
+         print bcolors.RESET
+         self.Result = False
+         return
 
 
    def Step3( self ):
@@ -284,8 +310,11 @@ class BargainSM(object):
 
       To determine the Undercut Percentage, have the buyer attempt a Bluff check opposed by the seller's Sense Motive check. The Undercut Percentage is 2%%, plus 1%% for every point by which the Bluff check exceeds the Sense Motive check (minimum 0%%).
       """
-
-      self.Buyer.BluffCheck = Funcs.D20() + self.Buyer.BluffSkill
+      if 's3BuyerBluffCheck' not in self.RollsDict :
+         self.Buyer.BluffCheck = Funcs.D20() + self.Buyer.BluffSkill
+         self.RollsDict['s3BuyerBluffCheck'] = True
+      else :
+         print "Bluf check was already rolled, not rerolling it..."
 
       print
       print "{} is trying to haggle {} on undercut amounts.".format( self.Buyer.Name, self.Seller.Name)
@@ -301,7 +330,7 @@ class BargainSM(object):
          bcolors.RESET
       print "{Name} Senses Motive with a {SenseMotiveCheck}".format( **self.Seller.__dict__ )
 
-      self.Buyer.UndercutPercent = 0.02 + ( 0.01 * UndercutMod )
+      self.Buyer.UndercutPercent = self.Buyer.MinUndercutAmount + ( 0.01 * UndercutMod )
 
       print "This results in a total undercut of: {:2.0%}".format( self.Buyer.UndercutPercent )
 
@@ -345,15 +374,18 @@ class BargainSM(object):
             self.Buyer.InitialOffer = self.Buyer.ValueEstimation * ( 1 - self.Buyer.UndercutPercent * 2 )
 
 
-      print 
-      print "We will now salt the Final and Initial Offers to keep players from outright calculating values!"
-      print "We will pick a salt amount between -1% and +1% and adjust both offers by the same %"
+      if 's4SaltedOffer' not in self.RollsDict :
+         print 
+         print "We will now salt the Final and Initial Offers to keep players from outright calculating values!"
+         print "We will pick a salt amount between -1% and +1% and adjust both offers by the same %"
 
-      salt = 1.0 + np.random.uniform( -0.01, 0.01 )
+         salt = 1.0 + np.random.uniform( -0.01, 0.01 )
 
-      # Salt helps keeps things fun, and prevent any meta-gaming. This is a very minor shift, but prevents players from gaming the system too much. 
-      self.Buyer.FinalOffer *= salt
-      self.Buyer.InitialOffer *= salt
+         # Salt helps keeps things fun, and prevent any meta-gaming. This is a very minor shift, but prevents players from gaming the system too much. 
+         self.Buyer.FinalOffer *= salt
+         self.Buyer.InitialOffer *= salt
+      else :
+         print "Already salted the offers, not rerolling...."
 
       print bcolors.RESET,
 
@@ -435,7 +467,8 @@ class BargainSM(object):
          if abs( self.Seller.CurrentOffer - self.Buyer.FinalOffer ) < self.Buyer.FinalOffer * 0.01 :
 
             if roll >= 20 + self.Buyer.CHAModifier + failedOfferDCMod :
-               break
+               self.Result = True
+               return
             
             # Only check for failure if we are actaully OVER that value!
             elif self.Seller.CurrentOffer >= self.Buyer.FinalOffer :
@@ -455,8 +488,12 @@ class BargainSM(object):
 
             # Check to see if this offer is just outright accepted
             diplomacyDC = 15 + self.Buyer.CHAModifier + failedOfferDCMod
+            print bcolors.RED,
+            print "   DM: The player needs to beat a DC of {} to sell.".format( diplomacyDC ),
+            print bcolors.RESET
             if roll >= diplomacyDC :
-               break
+               self.Result = True
+               return
             print bcolors.RED,
             print "   DM: The player did not beat a check of {} with a roll of {}".format( diplomacyDC, roll ),
             print bcolors.RESET
@@ -476,9 +513,10 @@ class BargainSM(object):
 
                if self.Buyer.CurrentOffer >= self.Seller.CurrentOffer :
                   print "{} Reconsiders your offer, and finds it to be fair.".format( self.Buyer.Name )
-                  exit()
+                  self.Result = True
+                  return
 
-               print "{} counteroffers at {:,.2f} gp for {}.".format( self.Buyer.Name, self.Buyer.CurrentOffer, Item.Name )
+               print "{} counteroffers at {:,.2f} gp for {}.".format( self.Buyer.Name, self.Buyer.CurrentOffer, self.Item.Name )
             continue
 
 
@@ -515,7 +553,9 @@ class BargainSM(object):
                   print bcolors.RED,
                   print "The final DC was {} (Overshoot) + {} (mod) = {}".format( overshootDC, failedOfferDCMod, overshootDC+failedOfferDCMod )
                   print "{} is greatly offended by the offer! They refuse to continue dealing with {}!".format( self.Buyer.Name, self.Seller.Name )
-                  exit()
+                  self.Result = False
+                  return
+
                adjustment = np.random.uniform( 0.01, 0.09 )
                print "{} is insulted by the offer! They lower their offer by {:.0%}!".format( self.Buyer.Name, adjustment )
                self.Buyer.InitialOffer = Funcs.Round_to_n( self.Buyer.InitialOffer * ( 1 - adjustment ), GlobalDecimalRounding )
@@ -529,12 +569,14 @@ class BargainSM(object):
 
 
    def StepFinished( self ):
-
       print          
-      print "SUCCESS! The price is agreed!"
-      print "{} will pay {:,.2f} gp for the item!".format( self.Buyer.Name, self.Seller.CurrentOffer )
+      if self.Result == True :
+         print bcolors.GREEN + "SUCCESS" + bcolors.RESET + "! The price is agreed!"
+         print "{} will pay {:,.2f} gp for the item!".format( self.Buyer.Name, self.Seller.CurrentOffer )
+      else :
+         print bcolors.GREEN + "FAILURE" + bcolors.RESET + "! The buyer is not intrested in your item."
+         print "If the buyer does meet with you again, he will take a larger minimum cut!"
 
+BargainSimulation = BargainSM()
 
-x = BargainSM()
-
-x.Run()
+BargainSimulation.Run()

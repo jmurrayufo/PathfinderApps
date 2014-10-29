@@ -2,6 +2,16 @@
 import numpy as np
 from numpy.random import random, choice, random_integers
 import time
+import scipy.stats
+
+D6 = {}
+D6[1] = [2,3,5,4]
+D6[2] = [6,3,5,1]
+D6[3] = [4,6,2,5]
+D6[4] = [6,3,5,1]
+D6[5] = [6,2,4,1]
+D6[6] = [2,3,4,5]
+
 
 mapping = {}
 mapping[1] =  [ 7,13,19]
@@ -49,13 +59,15 @@ def ProoveRandom(tTotal):
          speed -= random() * 5
       Count[side-1]+=1
    
-   print Count
+   print "Bins:",Count
    print "Total Rolls:",sum(Count)
    print "STD:",np.std(Count)
    total = 0
    for side,val in enumerate( Count ):
       total += (side+1)*val
    print "Average:",total/float( sum(Count) )
+   cresults = scipy.stats.chisquare( Count )
+   print "ChiSquared: {:.2%}".format(cresults[1])
 
 if __name__ == '__main__' :
    print "We will first take a moment to proove that we are random!"
