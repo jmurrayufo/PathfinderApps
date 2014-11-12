@@ -356,10 +356,10 @@ def EditPlayer( ):
       else:
          continue
 
-def SaveGame( ):
+def SaveGame( name='.playerdata.json' ):
    # Save current encounter to a JSON file for human reading a parseing
    # with other applications!
-   with open('.playerdata.json','w') as fp :
+   with open(name,'w') as fp :
       json.dump( GLOB_PLAYERS, fp, cls=PlayerEncoder, indent=3 )
 
    return None
@@ -422,7 +422,9 @@ def RunEncounter( ):
       if sel in [ 'r' ] :
          stdscr.clear()
          stdscr.addstr( "You are about to reset all of the timers for this combat" )
+         stdscr.addstr( "\n   Note: You MUST type 'yes' to confirm, 'y' wont work!" )
          if ( GetInput( "\nARE YOU SURE???> ", str ) == 'yes' ):
+            SaveGame( "saves/"+datetime.now().replace(microsecond=0).isoformat()+".json" )
             for i in GLOB_PLAYERS:
                i.Clear()
          continue
