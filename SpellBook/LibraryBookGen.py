@@ -8,9 +8,9 @@ import textwrap
 sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
    'APG', 'PFRPG Core', ]
 
-playerLevel = 4
+playerLevel = 5
 
-townCrapFactor = 0.7
+townCrapFactor = 0.6
 
 spellPerLevel =  5
 spellPerLevel *= townCrapFactor 

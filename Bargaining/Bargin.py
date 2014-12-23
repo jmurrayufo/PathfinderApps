@@ -92,10 +92,12 @@ class BargainSM(object):
             print "r: Restart Current State and continue"
             userSel = raw_input("> ")
             if userSel == 'b' and self.State > 0:
+               print bcolors.RESET
                self.State -= 1
                continue
 
             elif userSel == 'r' :
+               print bcolors.RESET
                continue
 
             else :
@@ -109,7 +111,7 @@ class BargainSM(object):
    def Step0( self ):
       os.system('clear')
 
-      """
+      print """
       Step 0: Get data for this run!
       """
 
@@ -140,6 +142,7 @@ class BargainSM(object):
       self.Item.AppraiseDC = Funcs.GetLegalInt()
 
       if 's0BuyerStats' not in self.RollsDict :
+         # Asign probabilty based on a simple linear range. 
          tmpProbSet = np.linspace( 1, 5, 5) / sum( np.linspace( 1, 5, 5 ) )
          self.Buyer.SkillsList = np.random.choice( Funcs.SkillChecks( self.Seller.Level ), 3, replace = True,  p = tmpProbSet )
          self.Buyer.BluffSkill = self.Buyer.SkillsList[0]
