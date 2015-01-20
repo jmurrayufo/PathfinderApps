@@ -10,7 +10,8 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 
 playerLevel = 5
 
-townCrapFactor = 0.6
+townCrapFactor = 0.2
+
 
 spellPerLevel =  5
 spellPerLevel *= townCrapFactor 

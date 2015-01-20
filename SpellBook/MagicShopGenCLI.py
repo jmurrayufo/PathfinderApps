@@ -38,6 +38,14 @@ parser.add_argument(
    nargs='?'
    )
 
+parser.add_argument( 
+   '-d','--discount',
+   type=float, 
+   default=1.0, 
+   metavar='FACTOR',
+   help='Percent Discount. All costs are directly multiplied by this. (Default 1.0)'
+   )
+
 parser.add_argument(
    "--all",
    action='store_true',
@@ -57,9 +65,8 @@ parser.add_argument(
    )
 
 
-
-
 args = parser.parse_args()
+
 
 def price_parse( price_string ):
    price_string = price_string.replace('gp','').replace(',','')
@@ -80,6 +87,8 @@ with open( 'magic_items_full.csv' ) as fp:
    for i in csvreader:
       # Append the converted row to the spell DB
       i['Price'] = price_parse(i['Price'])
+      if type(i['Price']) == int :
+         i['Price'] = int( i['Price'] * args.discount )
       spellDB.append( i )
 
 
@@ -93,6 +102,9 @@ if args.core:
    spellDBFiletered = [i for i in spellDBFiletered if i['Source'] in sourceFilterList]
 
 if not args.all:
+   if args.num > len(spellDBFiletered):
+      args.num = len( spellDBFiletered )
+         
    spellDBFiletered = np.random.choice( spellDBFiletered, args.num, False )
 
 spellDBFiletered = sorted( spellDBFiletered, key = lambda x: x['Price'] )
@@ -116,6 +128,7 @@ for i in spellDBFiletered :
    print "   Source: {Source}".format(**i)
    for line in wrap( "   Description: " + i['Description'], width=int(columns)-16, subsequent_indent='                  ' ):
       print line
+
    if args.all:
       print "  Index: {}".format(count)
    count += 1
