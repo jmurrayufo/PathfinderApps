@@ -6,6 +6,7 @@ import readline
 import sre_constants
 import textwrap
 import time
+from Funcs import *
 
 # <<< Options >>>
 
@@ -92,7 +93,7 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       print outputStr%('Saving Throw', inputEntry['saving_throw'].capitalize( ) )
    
    if( detailLevel >= 2 ):
-      tmp = outputStr%('Spell Level',inputEntry['spell_level'] )
+      tmp = outputStr%('Spell Level',Re_Parse_Spell_Level(inputEntry['spell_level']) )
       print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )
 
       # Not all spells have resistance info. 

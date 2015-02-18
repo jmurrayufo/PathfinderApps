@@ -10,28 +10,11 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 
 playerLevel = 7
 
-townCrapFactor = 0.1
-
-spellPerLevel =  5
-spellPerLevel *= townCrapFactor 
+spellPerLevel =  2
 
 johnsSpellRequests = []
 
-"""
-Adding Spells to a Wizard's Spellbook
-
-Wizards can add new spells to their spellbooks through several methods. A wizard can only learn new spells that belong to the wizard spell lists.
-
-Spells Gained at a New Level: Wizards perform a certain amount of spell research between adventures. Each time a character attains a new wizard level, he gains two spells of his choice to add to his spellbook. The two free spells must be of spell levels he can cast.
-
-Spells Copied from Another's Spellbook or a Scroll: A wizard can also add a spell to his book whenever he encounters one on a magic scroll or in another wizard's spellbook. No matter what the spell's source, the wizard must first decipher the magical writing (see Arcane Magical Writings). Next, he must spend 1 hour studying the spell. At the end of the hour, he must make a Spellcraft check (DC 15 + spell's level). A wizard who has specialized in a school of spells gains a +2 bonus on the Spellcraft check if the new spell is from his specialty school. If the check succeeds, the wizard understands the spell and can copy it into his spellbook (see Writing a New Spell into a Spellbook). The process leaves a spellbook that was copied from unharmed, but a spell successfully copied from a magic scroll disappears from the parchment.
-
-If the check fails, the wizard cannot understand or copy the spell. He cannot attempt to learn or copy that spell again until one week has passed. If the spell was from a scroll, a failed Spellcraft check does not cause the spell to vanish.
-
-In most cases, wizards charge a fee for the privilege of copying spells from their spellbooks. This fee is usually equal to half the cost to write the spell into a spellbook (see Writing a New Spell into a Spellbook). Rare and unique spells might cost significantly more.
-
-Independent Research: A wizard can also research a spell independently, duplicating an existing spell or creating an entirely new one. The cost to research a new spell, and the time required, are left up to GM discretion, but it should probably take at least 1 week and cost at least 1,000 gp per level of the spell to be researched. This should also require a number of Spellcraft and Knowledge (arcana) checks.
-"""
+showDetailedSpells = False
 
 expectedSpellsPerLevel = [
    min( 20, int( max( 0, ( playerLevel -  0 ) * spellPerLevel ) ) ), # Level 1 (max 112)
@@ -59,8 +42,12 @@ levelAmounts = [
 
 # Force each level to have at LEAST the minimum number of spells
 for idx,val in enumerate( levelAmounts ) :
-   if (idx+1)*2-1 <= pl and val < spellPerLevel :
+   if idx*2-1 <= playerLevel and val < spellPerLevel :
       levelAmounts[idx] = int( spellPerLevel )
+
+print expectedSpellsPerLevel
+print levelAmounts
+
 
 spellCopyCosts = [
      7.5,
@@ -73,6 +60,19 @@ spellCopyCosts = [
    735,
    960,
   1215,
+]
+
+spellWritingCosts = [
+   5,
+   10,
+   40,
+   90,
+   160,
+   250,
+   360,
+   490,
+   640,
+   810,
 ]
 
 with open( 'spell_full.csv' ) as fp:
@@ -93,10 +93,12 @@ with open( 'spell_full.csv' ) as fp:
          i['weight'] = 0.15
       try:
          # Offset by one to get correct index!
-         i['copy_cost'] = spellCopyCosts[ int( i['wiz'] ) - 1 ]
+         i['copy_cost'] = spellWritingCosts[ int( i['wiz'] ) - 1 ]
          
          if i['source'] not in sourceFilterList :
-            i['copy_cost'] *= 3
+            i['copy_cost'] += i['copy_cost']*4.5
+         else:
+            i['copy_cost'] *= 1.5
       except (ValueError) :
          continue
 
@@ -134,22 +136,21 @@ for idx,numberOfSpells in enumerate( levelAmounts ) :
       )
    for spell in spells :
       print "   Name: {name}".format( **spell )
-      if len( spell['short_description'] ) :
-         spellDes = textwrap.wrap( 
-            text="      Details: {short_description}".format( **spell ),
-            width=columns,
-            subsequent_indent="                  "
-            )
-      else:
-         spellDes = textwrap.wrap( 
-            text="      Details: {description}".format( **spell ),
-            width=columns,
-            subsequent_indent="                  "
-            )
+      if showDetailedSpells:
+         if len( spell['short_description'] ) :
+            spellDes = textwrap.wrap( 
+               text="      Details: {short_description}".format( **spell ),
+               width=columns,
+               subsequent_indent="                  "
+               )
+         else:
+            spellDes = textwrap.wrap( 
+               text="      Details: {description}".format( **spell ),
+               width=columns,
+               subsequent_indent="                  "
+               )
 
-      print "\n".join( spellDes )
+         print "\n".join( spell )
       print "      Source: {source}".format( **spell )
       print "      Copy Cost: {copy_cost} gp".format( **spell )
       print
-
-print "Total Spells: {}".format( int( sum( levelAmounts ) ) )
