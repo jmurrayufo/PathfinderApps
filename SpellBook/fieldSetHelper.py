@@ -18,7 +18,9 @@ sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
 spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
 
 
-print "Coloums:"
+print "Coloums:",columns
+raw_input("next...")
+
 for field in columns:
 
    Results = set()

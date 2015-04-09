@@ -39,6 +39,6 @@ selection = random.sample( spellDBFiletered, 2)
 
 print "Class: {}".format( randClass )
 for i in selection :
-   print i['name'],"[{}]".format( i[randClass])
+   print i['name'],"[SL:{}]".format( i[randClass])
    print " ",i['short_description']
    print

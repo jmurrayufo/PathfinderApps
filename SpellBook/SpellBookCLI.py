@@ -89,17 +89,17 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
    print outputStr%('Casting Time',inputEntry['casting_time'].capitalize( ) )
    
    # Some spells don't have saving throw info, don't print a blank statment
-   if( inputEntry['saving_throw'] ):
+   if ( inputEntry['saving_throw'] ):
       print outputStr%('Saving Throw', inputEntry['saving_throw'].capitalize( ) )
    
-   if( detailLevel >= 2 ):
+   if ( detailLevel >= 2 ):
       tmp = outputStr%('Spell Level',Re_Parse_Spell_Level(inputEntry['spell_level']) )
       print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )
 
       # Not all spells have resistance info. 
       if( inputEntry['spell_resistence'] ):
          print outputStr%('Resistance', inputEntry['spell_resistence'].capitalize( ) )
-   if detailLevel >= 1 :
+   if ( detailLevel >= 1 ) :
 
       # Print school, but NOT a new line. This allows us to add a sub school if it exists!
       print outputStr%('School',inputEntry['school'].capitalize( ) ),
@@ -126,7 +126,7 @@ def PrettyPrintSpell( inputEntry, detailLevel = 0 ):
       print outputStr%('Area',inputEntry['area'].capitalize( ) )
 
 
-   if detailLevel > 0 and detailLevel < 3 :
+   if ( detailLevel > 0 and detailLevel < 3 and inputEntry['short_description'] ) :
       tmp = outputStr%('Description',inputEntry['short_description'])
       tmp = SanatizeString( tmp )
       print '\n'.join( textwrap.TextWrapper( width = columns, subsequent_indent='                 ').wrap(tmp) )

@@ -8,9 +8,9 @@ import textwrap
 sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
    'APG', 'PFRPG Core', ]
 
-playerLevel = 7
+playerLevel = 10
 
-townCrapFactor = 0.1
+townCrapFactor = 0.4
 
 spellPerLevel =  5
 spellPerLevel *= townCrapFactor 
@@ -54,12 +54,12 @@ levelAmounts = [
    random.randint( 0, expectedSpellsPerLevel[5] ), # Level 6 (max 74)
    random.randint( 0, expectedSpellsPerLevel[6] ), # Level 7 (max 66)
    random.randint( 0, expectedSpellsPerLevel[7] ), # Level 8 (max 47)
-   random.randint( 0, expectedSpellsPerLevel[8] ), # Level 8 (max 43)
+   random.randint( 0, expectedSpellsPerLevel[8] ), # Level 9 (max 43)
 ]
 
 # Force each level to have at LEAST the minimum number of spells
 for idx,val in enumerate( levelAmounts ) :
-   if (idx+1)*2-1 <= pl and val < spellPerLevel :
+   if (idx+1)*2-1 <= playerLevel and val < spellPerLevel :
       levelAmounts[idx] = int( spellPerLevel )
 
 spellCopyCosts = [
