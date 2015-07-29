@@ -15,7 +15,9 @@ with open( 'spell_full.csv' ) as fp:
 sourceFilterList = [ 'Ultimate Magic', 'Ultimate Combat', 'Advanced Race Guide',
    'APG', 'PFRPG Core', ]
 
+
 spellDBFiletered = [ i for i in spellDB if i['source'] in sourceFilterList ]
+spellDBFiletered = [ i for i in spellDB ]
 
 
 print "Coloums:",columns

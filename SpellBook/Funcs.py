@@ -194,6 +194,7 @@ def Score_To_Mod( score ):
 
 def Minimum_Caster_Level( level, class_name ):
    scale_dict = {
+      "Assassin":[2],
       "adept":[1,1,4,7,10,13,16],
       "alchemist":[1,1,4,7,10,13,16],
       "antipaladin":[1,4,7,10,13],
@@ -203,6 +204,7 @@ def Minimum_Caster_Level( level, class_name ):
       "druid":[1,1,3,5,7,9,11,13,15,17],
       "inquisitor":[1,1,4,7,10,13,16],
       "magus":[1,1,4,7,10,13,16],
+      "magusUM":[1,1,4,7,10,13,16],
       "oracle":[1,1,3,5,7,9,11,13,15,17],
       "paladin":[1,4,7,10,13],
       "ranger":[1,4,7,10,13],
@@ -215,11 +217,13 @@ def Minimum_Caster_Level( level, class_name ):
       return scale_dict[class_name][level]
    except (IndexError):
       return None
+   except (KeyError):
+      assert(0),"Key error detected. Got inputs: level: {}  and class_name: {}".format(level,class_name)
 
 def Re_Parse_Spell_Level( inputString ):
    import re
-
    retString = ""
+
    for sub_string in inputString.split(','):
       sub_string = sub_string.lstrip().rstrip()
       # print sub_string

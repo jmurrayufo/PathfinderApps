@@ -8,6 +8,25 @@ import textwrap
 import time
 from Funcs import *
 
+"""
+###### CRASH LOGS ########
+Traceback (most recent call last):
+  File "/home/jmurray/Scripts/Pathfinder/Spellbook.py", line 754, in <module>
+    Main()
+  File "/home/jmurray/Scripts/Pathfinder/Spellbook.py", line 742, in Main
+    RunSearch()
+  File "/home/jmurray/Scripts/Pathfinder/Spellbook.py", line 647, in RunSearch
+    PrettyPrintSpell( i, Verbosity )
+  File "/home/jmurray/Scripts/Pathfinder/Spellbook.py", line 96, in PrettyPrintSpell
+    tmp = outputStr%('Spell Level',Re_Parse_Spell_Level(inputEntry['spell_level']) )
+  File "/home/jmurray/Git/PathfinderApps/SpellBook/Funcs.py", line 233, in Re_Parse_Spell_Level
+    retString += " (CL: {})".format(Minimum_Caster_Level( int(mtch.group(2)), mtch.group(1) ))
+  File "/home/jmurray/Git/PathfinderApps/SpellBook/Funcs.py", line 215, in Minimum_Caster_Level
+    return scale_dict[class_name][level]
+KeyError: 'Assassin'
+"""
+
+
 # <<< Options >>>
 
 # Source Filter List
@@ -700,7 +719,7 @@ def Main( ):
       print
       print "Enter Command, or press " + bcolors.GREEN + "enter" + bcolors.RESET + " to search"
       User_Selection_Raw = raw_input( "> " )
-
+      
       # Determine if this was a control statement, respond and loop
       if ( User_Selection_Raw in [ 'x', 'X', 'q', 'Q' ] ): 
          break
