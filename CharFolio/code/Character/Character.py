@@ -1,5 +1,6 @@
 
 from ..Helpers.Maths import ab_mod
+from ..Skill.Skill import Skill
 
 import numpy as np
 
@@ -15,6 +16,10 @@ class Character:
             self.name = kwargs.get("name","NO NAME")
             self.classes = {}
             self.equipment = []
+            self.feats = []
+            self.skills = {}
+            for skill in Skill.LOOKUP:
+                self.skills[skill] = Skill(skill)
             self._STR = kwargs.get("STR",10)
             self._DEX = kwargs.get("DEX",10)
             self._CON = kwargs.get("CON",10)
@@ -43,12 +48,16 @@ class Character:
         if hasattr(self,"level"):
             ret_val += f" Level {self.level}"
         if level >= 2:
-            ret_val += f"\n  STR: {self.STR:2} [{str(self.STR_mod):+>2}]"
-            ret_val += f"\n  DEX: {self.DEX:2} [{str(self.DEX_mod):+>2}]"
-            ret_val += f"\n  CON: {self.CON:2} [{str(self.CON_mod):+>2}]"
-            ret_val += f"\n  INT: {self.INT:2} [{str(self.INT_mod):+>2}]"
-            ret_val += f"\n  WIS: {self.WIS:2} [{str(self.WIS_mod):+>2}]"
-            ret_val += f"\n  CHA: {self.CHA:2} [{str(self.CHA_mod):+>2}]"
+            ret_val += "\n  Ability Scores"
+            ret_val += f"\n    STR: {self.STR:2} [{str(self.STR_mod):+>2}]"
+            ret_val += f"\n    DEX: {self.DEX:2} [{str(self.DEX_mod):+>2}]"
+            ret_val += f"\n    CON: {self.CON:2} [{str(self.CON_mod):+>2}]"
+            ret_val += f"\n    INT: {self.INT:2} [{str(self.INT_mod):+>2}]"
+            ret_val += f"\n    WIS: {self.WIS:2} [{str(self.WIS_mod):+>2}]"
+            ret_val += f"\n    CHA: {self.CHA:2} [{str(self.CHA_mod):+>2}]"
+        if True:
+            ret_val += "\n  Combat"
+            ret_val += "\n    AC: 10"
         return ret_val
 
 
@@ -121,7 +130,6 @@ class Character:
             '4d6d1': Roll 4d6 and drop the lowest
             '4d6b3': Alias to 3d6d1
         """
-
         for stat in ['_STR','_DEX','_CON','_INT','_WIS','_CHA']:
             randint = np.random.randint
             if method == '3d6':
@@ -133,3 +141,8 @@ class Character:
                 value = sum(sorted(results,reverse=True)[:3])
 
             setattr(self,stat,value)
+
+
+
+    def generate(self):
+        raise NotImplementedError("This must be subclassed")
