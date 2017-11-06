@@ -8,7 +8,10 @@ class Character:
         elif "file" in kwargs:
             # Attempt to load from file (assumed to be JSON)
             pass
-        self.name = kwargs.get("name","NO NAME")
+        else:
+            self.name = kwargs.get("name","NO NAME")
+            self.classes = {}
+            self.equipment = []
 
 
     def __repr__(self):
