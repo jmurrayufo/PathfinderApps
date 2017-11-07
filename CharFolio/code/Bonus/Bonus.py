@@ -2,9 +2,9 @@
 
 class Bonus:
 
-    def __init__(self, value, _type, conditions=None, description=None):
+    def __init__(self, value, type_, conditions=None, description=None):
         self.value = value
-        self._type = _type
+        self.type_ = type_
         self.conditions = conditions
         self.description = description
 
