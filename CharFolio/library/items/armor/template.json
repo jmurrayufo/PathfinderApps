@@ -1,0 +1,16 @@
+{
+  "ac_penalty": 0,
+  "amount": 1,
+  "arcane_spell_failure": 0.05,
+  "armor_bonus": 3,
+  "category": "Light Armor",
+  "description": null,
+  "equipped": false,
+  "masterwork": false,
+  "max_dex_bonus": 5,
+  "muled": false,
+  "name": "Studded Leather",
+  "shield_bonus": null,
+  "value": 25,
+  "weight": 20
+}
