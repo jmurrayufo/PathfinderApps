@@ -1,4 +1,5 @@
 
+
 from ..Helpers.Maths import ab_mod
 from ..Skill.Skill import Skill
 
@@ -6,26 +7,20 @@ import numpy as np
 
 class Character:
     def __init__(self, **kwargs):
-        if "json_str" in kwargs:
-            # Load from JSON
-            pass
-        elif "file" in kwargs:
-            # Attempt to load from file (assumed to be JSON)
-            pass
-        else:
-            self.name = kwargs.get("name","NO NAME")
-            self.classes = {}
-            self.equipment = []
-            self.feats = []
-            self.skills = {}
-            for skill in Skill.LOOKUP:
-                self.skills[skill] = Skill(skill)
-            self._STR = kwargs.get("STR",10)
-            self._DEX = kwargs.get("DEX",10)
-            self._CON = kwargs.get("CON",10)
-            self._INT = kwargs.get("INT",10)
-            self._WIS = kwargs.get("WIS",10)
-            self._CHA = kwargs.get("CHA",10)
+        self.name = kwargs.get("name","NO NAME")
+        self.equipment = []
+        self.feats = []
+        self.skills = {}
+        self.level = 0
+        for skill in Skill.LOOKUP:
+            self.skills[skill] = Skill(skill)
+        self._STR = kwargs.get("STR",10)
+        self._DEX = kwargs.get("DEX",10)
+        self._CON = kwargs.get("CON",10)
+        self._INT = kwargs.get("INT",10)
+        self._WIS = kwargs.get("WIS",10)
+        self._CHA = kwargs.get("CHA",10)
+        self.class_ = None
 
 
     def __repr__(self):
