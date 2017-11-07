@@ -1,12 +1,16 @@
 
 
+import logging
+
 from ..Helpers.Maths import ab_mod
 from ..Skill.Skill import Skill
 
 import numpy as np
 
 class Character:
+    logger = logging.getLogger("charFolio").getChild(__module__)
     def __init__(self, **kwargs):
+        self.logger.debug("Init")
         self.name = kwargs.get("name","NO NAME")
         self.equipment = []
         self.feats = []

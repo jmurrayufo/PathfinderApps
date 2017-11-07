@@ -1,9 +1,12 @@
 
+import logging
+
 from . import Character, Warrior
 
 class God:
     """Manage the creation of characters
     """
+    logger = logging.getLogger("charFolio").getChild(__module__)
     def __init__(self):
         pass
 

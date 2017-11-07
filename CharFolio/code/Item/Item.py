@@ -1,5 +1,10 @@
 
+import logging
+
 class Item:
+    
+    logger = logging.getLogger("charFolio").getChild(__module__)
+
     def __init__(self, name=None, description="", value=0, weight=0, amount=1, json_str=None,
             equiped=False, muled=False):
         if json_str:

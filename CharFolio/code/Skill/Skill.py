@@ -1,6 +1,8 @@
+import logging 
 
 class Skill:
 
+    logger = logging.getLogger("charFolio").getChild(__module__)
     LOOKUP = {
         # Skill: [Untrained, Ability, AC Penalty]
         "Acrobatics":[True,"DEX",True],
