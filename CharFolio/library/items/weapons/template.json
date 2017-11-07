@@ -1,0 +1,20 @@
+{
+  "amount": 1,
+  "category": null,
+  "critical": "x2",
+  "damage": "???",
+  "damage_type": "?",
+  "description": "This sword is about 3-1/2 feet in length.",
+  "double_weapon": false,
+  "equipped": false,
+  "hands": 1,
+  "masterwork": false,
+  "muled": false,
+  "name": "Longsword",
+  "range": null,
+  "size": "M",
+  "special": null,
+  "use_str_mod": true,
+  "value": 25,
+  "weight": 8
+}

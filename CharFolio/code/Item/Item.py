@@ -5,8 +5,7 @@ class Item:
 
     logger = logging.getLogger("charFolio").getChild(__module__)
 
-    def __init__(self, name=None, description="", value=0, weight=0, amount=1, 
-                json_str=None, file_=None, equiped=False, muled=False):
+    def __init__(self, json_str=None, file_=None, **kwargs):
         if json_str:
             # TODO
             raise NotImplementedError
@@ -14,19 +13,22 @@ class Item:
             # TODO
             raise NotImplementedError
         else:
-            self.name = name
-            self.description = description
-            self.value = value
-            self.weight = weight
-            self.amount = amount
-            self.equiped = equiped
-            self.muled = muled
+            self.amount = kwargs.get("amount", 1)
+            self.category = kwargs.get("category", None)
+            self.description = kwargs.get("description", None)
+            self.equipped = kwargs.get("equipped", False)
+            self.muled = kwargs.get("muled", False)
+            self.name = kwargs.get("name", None)
+            self.value = kwargs.get("value", 0)
+            self.weight = kwargs.get("weight", 0)
+            self.masterwork = kwargs.get("masterwork", False)
 
 
     def __repr__(self):
 
         ret_val = ""
         ret_val += f"N: {self.name}"
+
         if self.amount > 1:
             ret_val += f" x{self.amount}"
         elif self.amount == 0:
