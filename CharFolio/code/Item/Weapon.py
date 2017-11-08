@@ -32,4 +32,8 @@ class Weapon(Item.Item):
         if parent and self.use_str_mod:
             ret_val += parent.STR
 
+        return ret_val + self._atk_bonus
 
+
+    def set_atk_bonus(self, value):
+        self._atk_bonus = value
