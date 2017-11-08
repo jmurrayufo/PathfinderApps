@@ -142,6 +142,20 @@ class Character:
             setattr(self,stat,value)
 
 
+    def get_stats_line(self, method='3d6'):
+        randint = np.random.randint
+        ret_val = []
+        for i in range(6):            
+            if method == '3d6':
+                value = randint(1,7)+randint(1,7)+randint(1,7)
+            elif method in ['4d6d1','4d6b3']:
+                results = []
+                for i in range(4):
+                    results.append(randint(1,7))
+                value = sum(sorted(results,reverse=True)[:3])
+            ret_val.append(value)
+        return ret_val
+
 
     def generate(self, method='3d6'):
         raise NotImplementedError("This must be subclassed")
