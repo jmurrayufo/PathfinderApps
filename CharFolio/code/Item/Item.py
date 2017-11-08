@@ -1,11 +1,13 @@
 
 import logging
 
+from ..Bonus import Bonus
+
 class Item:
 
     logger = logging.getLogger("charFolio").getChild(__module__)
 
-    def __init__(self, json_str=None, file_=None, **kwargs):
+    def __init__(self, *, json_str=None, file_=None, **kwargs):
         if json_str:
             # TODO
             raise NotImplementedError
@@ -52,3 +54,34 @@ class Item:
     @property
     def value_total(self):
         return self.value*self.amount
+
+
+    def ac_bonus(self):
+        """If this item can give an AC bonus, return it, else None
+        """
+        # Duck typing! This seems kinda wasteful and bloated... Maybe use 
+        # hasattr() instead?
+        try:
+            return Bonus(self.shield_bonus,"shield","AC")
+        except AttributeError:
+            pass
+        
+        # Duck typing
+        try:
+            return Bonus(self.armor_bonus,"shield","AC")
+        except AttributeError:
+            pass
+
+        return None
+
+
+    def atk_bonus(self, parent=None):
+        """If this item can give an AC bonus, return it, else None
+        """
+        # Duck typing! This seems kinda wasteful and bloated... Maybe use 
+        # hasattr() instead?
+        try:
+            return Bonus(self.atk_bonus(parent),"shield","AC")
+        except AttributeError:
+            pass
+        return None

@@ -8,3 +8,7 @@ class Warrior(Character.Character):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.class_ = 'warrior'
+
+    def generate(self, method='3d6'):
+        self.roll_stats(method)
+        

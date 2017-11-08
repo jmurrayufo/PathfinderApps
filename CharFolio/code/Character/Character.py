@@ -143,5 +143,5 @@ class Character:
 
 
 
-    def generate(self):
+    def generate(self, method='3d6'):
         raise NotImplementedError("This must be subclassed")
