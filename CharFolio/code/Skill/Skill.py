@@ -56,7 +56,7 @@ class Skill:
         return f"Skill({self.name},ranks={self.ranks})"  
 
     def __str__(self):
-        return f"{self.name} [{self.total()}]"
+        return f"{self.name} - {self.ability} (Ranks: {self.total()})"
 
 
     def total(self, parent=None):

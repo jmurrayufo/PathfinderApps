@@ -1,7 +1,7 @@
 
 from .Bonus.Bonus import Bonus, BonusSet
 from .Character.Character import Character
-from .Character.Warrior import Warrior
+from .Character.Fighter import Fighter
 from .Character.God import God
 from .Item.Item import Item
 from .Item.Armor import Armor

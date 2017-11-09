@@ -13,9 +13,10 @@ class Character:
         self.logger.debug("Init")
         self.name = kwargs.get("name","NO NAME")
         self.equipment = []
-        self.feats = []
+        self.feats = {}
+        self.special_abilities = {}
         self.skills = {}
-        self.level = 0
+        self.level = 1
         for skill in Skill.LOOKUP:
             self.skills[skill] = Skill(skill)
         self._STR = kwargs.get("STR",10)
@@ -158,4 +159,8 @@ class Character:
 
 
     def generate(self, method='3d6'):
+        raise NotImplementedError("This must be subclassed")
+
+
+    def level_up(self, levels=1):
         raise NotImplementedError("This must be subclassed")

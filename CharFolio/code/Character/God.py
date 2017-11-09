@@ -1,7 +1,7 @@
 
 import logging
 
-from . import Character, Warrior
+from . import Character, Fighter
 
 class God:
     """Manage the creation of characters
