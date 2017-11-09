@@ -1,6 +1,6 @@
 {
     "name":"Acrobatic",
-    "prerequisites":null,
-    "benefits":"+2 bonus on Acrobatics and Fly checks",
+    "prerequisite":null,
+    "benefit":"You get a +2 bonus on all Acrobatics and Fly skill checks. If you have 10 or more ranks in one of these skills, the bonus increases to +4 for that skill.",
     "bonus_code":null
 }
