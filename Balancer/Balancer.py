@@ -76,7 +76,6 @@ elif args.split_loot:
             if 'claimed' not in item: raise KeyError(f"claimed not found in {item['name']}")
             if item['claimed'] > item['amount']: raise ValueError(f"{item['name']} has more claimed than exist")
 
-
     balances = sql.get_balances()
     party_id = sql.get_player_id('party')
     print("Initial Player Balances")
@@ -85,7 +84,7 @@ elif args.split_loot:
 
     total_loot_value = 0
     for item in data['items']:
-        
+
         # Trade goods are sold at market value, everything else is at 50%
         if item['trade-good']:
             total_loot_value += (item['amount']-item['claimed'])*item['value']
@@ -111,7 +110,6 @@ elif args.split_loot:
         player_id = sql.get_player_id(player)
         print(f"{player:>8}:{data['player_loot'][player]:7,.2f} gp")
         balances[player_id] += data['player_loot'][player]
-        remaining_loot_value -= data['player_loot'][player]
 
     print("\nBalance After Player Loot")
     for player_id in balances:
