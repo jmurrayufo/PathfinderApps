@@ -3,6 +3,7 @@
 import SQL
 import argparse
 import json
+import math
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--add-player', nargs=2,
@@ -42,9 +43,9 @@ elif args.loot_template:
 
     template['items'] = []
     template['items'].append({"name":"sword","value":50,"amount":1, 
-                              "trade-good":False, "claimed":0})
+                               "claimed":0, "trade-good":False,})
     template['items'].append({"name":"potion","value":50,"amount":6, 
-                              "trade-good":False, "claimed":0})
+                               "claimed":0, "trade-good":False,})
 
     template['player_loot'] = {}
     players = sql.get_players()
@@ -75,6 +76,22 @@ elif args.split_loot:
             if 'trade-good' not in item: raise KeyError(f"trade-good not found in {item['name']}")
             if 'claimed' not in item: raise KeyError(f"claimed not found in {item['name']}")
             if item['claimed'] > item['amount']: raise ValueError(f"{item['name']} has more claimed than exist")
+
+    # Check claimed loot to make sure we don't have a miss match
+    claimed_loot_value = 0
+    for item in data['items']:
+        claimed_loot_value += item['value']*item['claimed']
+    for player in data['player_loot']:
+        claimed_loot_value -= data['player_loot'][player]
+    # Results to match with 1 gp
+    if not math.isclose(claimed_loot_value, 0, rel_tol=1e-02, abs_tol=1):
+        print(f"Found error in math")
+        print(f"Total claimed values balanced to {claimed_loot_value:,.2f} gp, expected (nearly) zero")
+        if claimed_loot_value > 0:
+            print("Looks a player didn't claim loot")
+        else:
+            print("Looks like a player claimed loot they didn't take")
+        raise ArithmeticError("Player loot and claimed loot have a mismatch")
 
     balances = sql.get_balances()
     party_id = sql.get_player_id('party')
