@@ -75,7 +75,14 @@ elif args.split_loot:
             if 'amount' not in item: raise KeyError(f"amount not found in {item['name']}")
             if 'trade-good' not in item: raise KeyError(f"trade-good not found in {item['name']}")
             if 'claimed' not in item: raise KeyError(f"claimed not found in {item['name']}")
-            if item['claimed'] > item['amount']: raise ValueError(f"{item['name']} has more claimed than exist")
+            if item['claimed'] > item['amount']: raise ValueError(f"'{item['name']}' has more claimed than exist")
+        players = sql.get_players()
+        for player_name in data['player_loot']:
+            for db_player in players:
+                if db_player['name'] == player_name: break
+            else:
+                raise KeyError(f"'{player_name}' isn't in the DB. Use --add-player to add them!")
+
 
     # Check claimed loot to make sure we don't have a miss match
     claimed_loot_value = 0
