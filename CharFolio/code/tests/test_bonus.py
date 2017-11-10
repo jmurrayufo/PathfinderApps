@@ -1,7 +1,7 @@
 
 import unittest
 
-from ..Bonus.Bonus import Bonus
+from .. import Bonus
 
 class Bonuses(unittest.TestCase):
 
