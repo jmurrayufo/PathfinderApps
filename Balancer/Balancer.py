@@ -4,7 +4,6 @@ import SQL
 import argparse
 import json
 
-
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--add-player', nargs=2,
                     help='Add a new player')
@@ -42,8 +41,10 @@ elif args.loot_template:
     template['coins']['copper'] = 0
 
     template['items'] = []
-    template['items'].append({"name":"sword","value":50,"amount":1})
-    template['items'].append({"name":"potion","value":50,"amount":6})
+    template['items'].append({"name":"sword","value":50,"amount":1, 
+                              "trade-good":False, "claimed":0})
+    template['items'].append({"name":"potion","value":50,"amount":6, 
+                              "trade-good":False, "claimed":0})
 
     template['player_loot'] = {}
     players = sql.get_players()
@@ -71,16 +72,26 @@ elif args.split_loot:
             if 'name' not in item: raise KeyError(f"name not found in {item['name']}")
             if 'value' not in item: raise KeyError(f"value not found in {item['name']}")
             if 'amount' not in item: raise KeyError(f"amount not found in {item['name']}")
+            if 'trade-good' not in item: raise KeyError(f"trade-good not found in {item['name']}")
+            if 'claimed' not in item: raise KeyError(f"claimed not found in {item['name']}")
+            if item['claimed'] > item['amount']: raise ValueError(f"{item['name']} has more claimed than exist")
+
 
     balances = sql.get_balances()
-    party_id = sql.get_player_id('party')    
+    party_id = sql.get_player_id('party')
     print("Initial Player Balances")
     for player_id in balances:
         print(f"{sql.get_player(player_id)['name']:>8}:{balances[player_id]:7,.2f} gp")
 
     total_loot_value = 0
     for item in data['items']:
-        total_loot_value += item['amount']*item['value']
+        
+        # Trade goods are sold at market value, everything else is at 50%
+        if item['trade-good']:
+            total_loot_value += (item['amount']-item['claimed'])*item['value']
+        else:
+            total_loot_value += (item['amount']-item['claimed'])*item['value']/2
+
     total_loot_value += data['coins']['platinum']*10
     total_loot_value += data['coins']['gold']*1
     total_loot_value += data['coins']['silver']/10
