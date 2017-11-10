@@ -18,14 +18,13 @@ parser.add_argument('-p','--party-fund', action='store_true',
                     help='Should we fund the party?')
 
 args = parser.parse_args()
-# print(args)
 sql = SQL.SQL()
 
 if args.add_player:
     sql.add_player(args.add_player[0],args.add_player[1])
 
 
-if args.list_players:
+elif args.list_players:
     players = sql.get_players()
     balances = sql.get_balances()
 
@@ -33,7 +32,7 @@ if args.list_players:
         print(f"'{player['name']}' playing '{player['character_name']}' with {balances[player['player_id']]:,.2f} gp")
 
 
-if args.loot_template:
+elif args.loot_template:
     template = {}
     
     template['coins'] = {}
@@ -55,10 +54,25 @@ if args.loot_template:
         json.dump(template,fp,indent=4)
 
 
-if args.split_loot:
+elif args.split_loot:
+    # Load the data from the given json
     with open(args.split_loot[0],'r') as fp:
         data = json.load(fp)
-    
+
+        # Do some sanity checking on the given JSON file
+        if 'coins' not in data: raise KeyError("Coins not found in json")
+        if 'platinum' not in data['coins']: raise KeyError("platinum coins not found in json")
+        if 'gold' not in data['coins']: raise KeyError("gold coins not found in json")
+        if 'silver' not in data['coins']: raise KeyError("silver coins not found in json")
+        if 'copper' not in data['coins']: raise KeyError("copper coins not found in json")
+        if 'items' not in data: raise KeyError("items not found in json")
+        if 'player_loot' not in data: raise KeyError("player_loot not found in json")
+        for item in data['items']:
+            if 'name' not in item: raise KeyError(f"name not found in {item['name']}")
+            if 'value' not in item: raise KeyError(f"value not found in {item['name']}")
+            if 'amount' not in item: raise KeyError(f"amount not found in {item['name']}")
+
+
     balances = sql.get_balances()
     party_id = sql.get_player_id('party')    
     print("Initial Player Balances")
@@ -172,3 +186,5 @@ if args.split_loot:
         for transaction in transactions:
             sql.add_transaction(transaction,data['name'],transactions[transaction])
 
+else:
+    parser.print_help()
