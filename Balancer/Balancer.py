@@ -72,13 +72,11 @@ elif args.split_loot:
             if 'value' not in item: raise KeyError(f"value not found in {item['name']}")
             if 'amount' not in item: raise KeyError(f"amount not found in {item['name']}")
 
-
     balances = sql.get_balances()
     party_id = sql.get_player_id('party')    
     print("Initial Player Balances")
     for player_id in balances:
         print(f"{sql.get_player(player_id)['name']:>8}:{balances[player_id]:7,.2f} gp")
-
 
     total_loot_value = 0
     for item in data['items']:
