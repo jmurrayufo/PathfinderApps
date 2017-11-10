@@ -84,7 +84,6 @@ elif args.split_loot:
 
     total_loot_value = 0
     for item in data['items']:
-
         # Trade goods are sold at market value, everything else is at 50%
         if item['trade-good']:
             total_loot_value += (item['amount']-item['claimed'])*item['value']
@@ -114,7 +113,6 @@ elif args.split_loot:
     print("\nBalance After Player Loot")
     for player_id in balances:
         print(f"{sql.get_player(player_id)['name']:>8}:{balances[player_id]:7,.2f} gp")
-
 
     party_balanced = False
     print("\nAllocate Loot until party is balanced, or loot is gone.")
@@ -186,7 +184,6 @@ elif args.split_loot:
         print(f"        - Old Balance: {old_balances[player_id]:7,.2f} gp")
         print(f"        - New Balance: {balances[player_id]:7,.2f} gp")
         print(f"        - Coins Paid:  {coin_payouts[player_id]:7,.2f} gp")
-
 
     print("Do you wish to commit this to the DB?")
     if input("(y/n)> ").lower().startswith("y"):
