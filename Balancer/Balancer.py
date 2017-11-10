@@ -15,7 +15,7 @@ parser.add_argument('--loot-template', action='store_true',
 parser.add_argument('--split-loot', nargs=1,
                     help='Create a loot template')
 parser.add_argument('-p','--party-fund', action='store_true',
-                    help='Should we fund the party?')
+                    help='Fund the party in loot splits')
 
 args = parser.parse_args()
 sql = SQL.SQL()
@@ -83,7 +83,6 @@ elif args.split_loot:
             else:
                 raise KeyError(f"'{player_name}' isn't in the DB. Use --add-player to add them!")
 
-
     # Check claimed loot to make sure we don't have a miss match
     claimed_loot_value = 0
     for item in data['items']:
@@ -114,10 +113,10 @@ elif args.split_loot:
         else:
             total_loot_value += (item['amount']-item['claimed'])*item['value']/2
 
-    total_loot_value += data['coins']['platinum']*10
-    total_loot_value += data['coins']['gold']*1
-    total_loot_value += data['coins']['silver']/10
-    total_loot_value += data['coins']['copper']/100
+    total_loot_value += data['coins']['platinum']*1e1
+    total_loot_value += data['coins']['gold']*1e0
+    total_loot_value += data['coins']['silver']*1e-1
+    total_loot_value += data['coins']['copper']*1e-2
 
     remaining_loot_value = total_loot_value
     print(f"\nTotal loot to split {total_loot_value:.2f} gp.")
@@ -185,6 +184,11 @@ elif args.split_loot:
 
     if remaining_loot_value > 0:    
         print(f"\nWe now have {remaining_loot_value:.2f} gp to split.")
+
+        if not args.party_fund:
+            print("Do you wish to also fund the party fund?")
+            if input("(y/n)> ").lower().startswith("y"):
+                args.party_fund = True
 
         split_number = len(balances) - 1
         if args.party_fund:
