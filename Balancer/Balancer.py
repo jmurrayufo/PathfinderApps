@@ -5,7 +5,7 @@ import argparse
 import json
 import math
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser(description='Help balance loot in a party.')
 parser.add_argument('--add-player', nargs=2,
                     help='Add a new player')
 parser.add_argument('--list-players', action='store_true',
