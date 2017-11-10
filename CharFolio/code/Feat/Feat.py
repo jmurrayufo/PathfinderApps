@@ -4,9 +4,9 @@ from pathlib import Path
 import json
 
 class Feat:
-    FEATS_DICT = {}
     library_dir = Path(os.path.dirname(__file__)+"/../library/feats/")
 
+    FEATS_DICT = {}
     for feat in library_dir.glob("*.json"):
         FEATS_DICT[feat.stem] = feat
 
