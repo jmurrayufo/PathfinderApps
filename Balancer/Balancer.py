@@ -67,36 +67,20 @@ elif args.split_loot:
         if 'silver' not in data['coins']: raise KeyError("silver coins not found in json")
         if 'copper' not in data['coins']: raise KeyError("copper coins not found in json")
         if 'items' not in data: raise KeyError("items not found in json")
-        if 'player_loot' not in data: raise KeyError("player_loot not found in json")
         for item in data['items']:
             if 'name' not in item: raise KeyError(f"name not found in {item['name']}")
             if 'value' not in item: raise KeyError(f"value not found in {item['name']}")
             if 'amount' not in item: raise KeyError(f"amount not found in {item['name']}")
             if 'trade-good' not in item: raise KeyError(f"trade-good not found in {item['name']}")
             if 'claimed' not in item: raise KeyError(f"claimed not found in {item['name']}")
-            if item['claimed'] > item['amount']: raise ValueError(f"'{item['name']}' has more claimed than exist")
-        players = sql.get_players()
-        for player_name in data['player_loot']:
-            for db_player in players:
-                if db_player['name'] == player_name: break
-            else:
-                raise KeyError(f"'{player_name}' isn't in the DB. Use --add-player to add them!")
+            # TODO: Make this check work again
+            # if item['claimed'] > item['amount']: raise ValueError(f"'{item['name']}' has more claimed than exist")
 
     # Check claimed loot to make sure we don't have a miss match
     claimed_loot_value = 0
     for item in data['items']:
-        claimed_loot_value += item['value']*item['claimed']
-    for player in data['player_loot']:
-        claimed_loot_value -= data['player_loot'][player]
-    # Results to match with 1 gp
-    if not math.isclose(claimed_loot_value, 0, rel_tol=1e-02, abs_tol=1):
-        print(f"Found error in math")
-        print(f"Total claimed values balanced to {claimed_loot_value:,.2f} gp, expected (nearly) zero")
-        if claimed_loot_value > 0:
-            print("Looks a player didn't claim loot")
-        else:
-            print("Looks like a player claimed loot they didn't take")
-        raise ArithmeticError("Player loot and claimed loot have a mismatch")
+        num_claimed = sum([item['claimed'][x] for x in item['claimed']])
+        claimed_loot_value += item['value']*num_claimed
 
     balances = sql.get_balances()
     party_id = sql.get_player_id('party')
@@ -107,10 +91,11 @@ elif args.split_loot:
     total_loot_value = 0
     for item in data['items']:
         # Trade goods are sold at market value, everything else is at 50%
+        num_claimed = sum([item['claimed'][x] for x in item['claimed']])
         if item['trade-good']:
-            total_loot_value += (item['amount']-item['claimed'])*item['value']
+            total_loot_value += (item['amount']-num_claimed)*item['value']
         else:
-            total_loot_value += (item['amount']-item['claimed'])*item['value']/2
+            total_loot_value += (item['amount']-num_claimed)*item['value']/2
 
     total_loot_value += data['coins']['platinum']*1e1
     total_loot_value += data['coins']['gold']*1e0
@@ -126,11 +111,11 @@ elif args.split_loot:
         coin_payouts[player_id] = 0
 
     # First things first, players buy their loot
-    print("\nPlayer Loot Taken")
-    for player in data['player_loot']:
-        player_id = sql.get_player_id(player)
-        print(f"{player:>8}:{data['player_loot'][player]:7,.2f} gp")
-        balances[player_id] += data['player_loot'][player]
+    # print("\nPlayer Loot Taken")
+    # for player in data['player_loot']:
+    #     player_id = sql.get_player_id(player)
+    #     print(f"{player:>8}:{data['player_loot'][player]:7,.2f} gp")
+    #     balances[player_id] += data['player_loot'][player]
 
     print("\nBalance After Player Loot")
     for player_id in balances:
