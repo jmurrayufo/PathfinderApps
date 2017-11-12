@@ -111,11 +111,21 @@ elif args.split_loot:
         coin_payouts[player_id] = 0
 
     # First things first, players buy their loot
-    # print("\nPlayer Loot Taken")
-    # for player in data['player_loot']:
-    #     player_id = sql.get_player_id(player)
-    #     print(f"{player:>8}:{data['player_loot'][player]:7,.2f} gp")
-    #     balances[player_id] += data['player_loot'][player]
+    print("\nPlayer Loot Taken")
+    player_loot = {}
+    for player in sql.get_players():
+        player_loot[player['name']] = 0
+
+    for item in data['items']:
+        print(item['name'])
+        for player in item['claimed']:
+            player_loot[player] += item['claimed'][player]*item['value']
+
+    for player_dict in sql.get_players():
+        player_name = player_dict['name']
+        player_id = sql.get_player_id(player_name)
+        print(f"{player_name:>8}:{player_loot[player_name]:7,.2f} gp")
+        balances[player_id] += player_loot[player_name]
 
     print("\nBalance After Player Loot")
     for player_id in balances:
