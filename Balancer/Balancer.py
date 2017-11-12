@@ -34,6 +34,8 @@ elif args.list_players:
 
 elif args.loot_template:
     template = {}
+
+    players = sql.get_players()
     
     template['coins'] = {}
     template['coins']['platinum'] = 0
@@ -42,15 +44,12 @@ elif args.loot_template:
     template['coins']['copper'] = 0
 
     template['items'] = []
-    template['items'].append({"name":"sword","value":50,"amount":1, 
-                               "claimed":0, "trade-good":False,})
-    template['items'].append({"name":"potion","value":50,"amount":6, 
-                               "claimed":0, "trade-good":False,})
-
-    template['player_loot'] = {}
-    players = sql.get_players()
+    item_example = {"name":"sword","value":50,"amount":1, 
+                    "claimed":{}, "trade-good":False,}
     for player in players:
-        template['player_loot'][player['name']] = 0
+        item_example['claimed'][player['name']] = 0
+
+    template['items'].append(item_example)
 
     with open("template.json",'w') as fp:
         json.dump(template,fp,indent=4)
