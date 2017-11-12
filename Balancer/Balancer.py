@@ -147,6 +147,7 @@ elif args.split_loot:
 
         print(f"Lowest balance is {lowest_balance:.2f} gp")
         print(f"Target for these balances is {second_lowest_balance:.2f} gp")
+        print(f"Payout expected is {second_lowest_balance - lowest_balance:.2f} gp")
         
         print("Who has this amount?")
         lowest_players = []
