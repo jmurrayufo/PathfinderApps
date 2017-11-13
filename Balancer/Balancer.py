@@ -10,8 +10,8 @@ parser.add_argument('--add-player', nargs=2,
                     help='Add a new player')
 parser.add_argument('--list-players', action='store_true',
                     help='List off players')
-parser.add_argument('--loot-template', action='store_true',
-                    help='Create a loot template')
+parser.add_argument('--loot-template', nargs='?', default=None, const=True,
+                    help='Create a loot template. If a filename is given, read lines as items.')
 parser.add_argument('--split-loot', nargs=1,
                     help='Create a loot template')
 parser.add_argument('-p','--party-fund', action='store_true',
@@ -43,12 +43,23 @@ elif args.loot_template:
     template['coins']['silver'] = 0
     template['coins']['copper'] = 0
 
-    template['items'] = []
-    item_example = {"name":"sword","value":50,"amount":1, 
-                    "claimed":{}, "trade-good":False,}
-    for player in players:
-        item_example['claimed'][player['name']] = 0
-    template['items'].append(item_example)
+    if type(args.loot_template) is str:
+        template['items'] = []
+        with open(args.loot_template) as fp:
+            for line in fp:
+                item_example = {"name":line.strip(),"value":50,"amount":1, 
+                                "claimed":{}, "trade-good":False,}
+                for player in players:
+                    item_example['claimed'][player['name']] = 0
+                template['items'].append(item_example)
+
+    else:
+        template['items'] = []
+        item_example = {"name":"sword","value":50,"amount":1, 
+                        "claimed":{}, "trade-good":False,}
+        for player in players:
+            item_example['claimed'][player['name']] = 0
+        template['items'].append(item_example)
 
     template['name'] = "UNAMED"
 
