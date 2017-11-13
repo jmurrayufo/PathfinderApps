@@ -76,8 +76,8 @@ elif args.split_loot:
             if 'amount' not in item: raise KeyError(f"amount not found in {item['name']}")
             if 'trade-good' not in item: raise KeyError(f"trade-good not found in {item['name']}")
             if 'claimed' not in item: raise KeyError(f"claimed not found in {item['name']}")
-            # TODO: Make this check work again
-            # if item['claimed'] > item['amount']: raise ValueError(f"'{item['name']}' has more claimed than exist")
+            if sum([item['claimed'][p] for p in item['claimed']]) > item['amount']:
+                raise ValueError(f"'{item['name']}' has more claimed than exist")
 
     # Check claimed loot to make sure we don't have a miss match
     claimed_loot_value = 0
