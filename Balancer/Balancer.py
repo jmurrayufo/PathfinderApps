@@ -48,8 +48,11 @@ elif args.loot_template:
                     "claimed":{}, "trade-good":False,}
     for player in players:
         item_example['claimed'][player['name']] = 0
-
     template['items'].append(item_example)
+
+    template['name'] = "UNAMED"
+
+    template['comments'] = ""
 
     with open("template.json",'w') as fp:
         json.dump(template,fp,indent=4)
