@@ -131,10 +131,11 @@ elif args.split_loot:
         player_loot[player['name']] = 0
 
     for item in data['items']:
-        print(item['name'])
         for player in item['claimed']:
-            player_loot[player] += item['claimed'][player]*item['value']
-
+            if item['claimed'][player]:
+                player_loot[player] += item['claimed'][player]*item['value']
+                print(f"{player} takes {item['claimed'][player]}x {item['name']} worth {item['claimed'][player]*item['value']:.2f} gp")
+    print("\nTotal Player Loot Taken")
     for player_dict in sql.get_players():
         player_name = player_dict['name']
         player_id = sql.get_player_id(player_name)
